@@ -1487,12 +1487,7 @@
 
         <div
           id="updatePercentText"
-          style="
-            margin-top: 10px;
-            margin-bottom: 15px;
-            font-size: 16px;
-            font-weight: bold;
-          "
+          style="margin: 12px 0; font-size: 18px; font-weight: bold"
         >
           0%
         </div>
@@ -1512,7 +1507,7 @@
               width: 0%;
               height: 100%;
               background: var(--primary);
-              transition: 0.2s;
+              transition: 0.25s ease;
             "
           ></div>
         </div>
@@ -1660,6 +1655,8 @@
         });
 
         window.launcherAPI?.onUpdateDownloaded(() => {
+          document.getElementById("updateProgressModal").style.display = "none";
+
           showActionConfirm(
             "✅",
             "업데이트 준비 완료",

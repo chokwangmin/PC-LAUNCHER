@@ -669,19 +669,30 @@ autoUpdater.on(
 );
 
 autoUpdater.on(
-    "update-downloaded",
-    () => {
+    "download-progress",
+    (progress) => {
+
+        const percent =
+            Math.round(
+                progress.percent
+            );
 
         if (mainWindow) {
 
             mainWindow.webContents.send(
-                "update-downloaded"
+                "update-progress",
+                percent
+            );
+
+            mainWindow.setProgressBar(
+                percent / 100
             );
 
         }
 
     }
 );
+``
 
 ipcMain.handle(
     "download-update",
@@ -700,8 +711,18 @@ ipcMain.handle(
 
         isQuitting = true;
 
+        if (mainWindow) {
+
+            mainWindow.removeAllListeners(
+                "close"
+            );
+
+            mainWindow.hide();
+
+        }
+
         autoUpdater.quitAndInstall(
-            true,
+            false,
             true
         );
 
