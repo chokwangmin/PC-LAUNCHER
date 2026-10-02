@@ -747,3 +747,15 @@ autoUpdater.on("error", (err) => {
         );
     }
 });
+
+autoUpdater.on(
+    "download-progress",
+    (progress) => {
+
+        mainWindow.webContents.send(
+            "update-progress",
+            progress.percent
+        );
+
+    }
+);

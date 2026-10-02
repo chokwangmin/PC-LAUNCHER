@@ -1,6 +1,6 @@
 {
   "name": "pc-ultimate-launcher",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "author": "clride",
   "description": "PC Ultimate Launcher Pro",
   "main": "main.js",
@@ -35,8 +35,8 @@
       ]
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false
     }
   }
 }
