@@ -720,3 +720,30 @@ autoUpdater.on("update-not-available", () => {
 autoUpdater.on("error", (err) => {
     console.error("업데이트 오류:", err);
 });
+
+autoUpdater.on("checking-for-update", () => {
+    if (mainWindow) {
+        mainWindow.webContents.send(
+            "update-log",
+            "업데이트 확인 시작"
+        );
+    }
+});
+
+autoUpdater.on("update-not-available", () => {
+    if (mainWindow) {
+        mainWindow.webContents.send(
+            "update-log",
+            "업데이트 없음"
+        );
+    }
+});
+
+autoUpdater.on("error", (err) => {
+    if (mainWindow) {
+        mainWindow.webContents.send(
+            "update-log",
+            `업데이트 오류: ${err}`
+        );
+    }
+});

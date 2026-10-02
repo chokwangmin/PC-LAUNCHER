@@ -53,4 +53,10 @@ contextBridge.exposeInMainWorld("launcherAPI", {
         ipcRenderer.invoke(
             "install-update"
         ),
+
+    onUpdateLog: (callback) =>
+        ipcRenderer.on(
+            "update-log",
+            callback
+        ),
 });
