@@ -1,6 +1,7 @@
 {
   "name": "PC-Ultimate",
   "version": "1.2.0",
+  "author": "clride",
   "description": "PC Ultimate Launcher Pro",
   "main": "main.js",
   "scripts": {
@@ -21,7 +22,7 @@
       "output": "dist"
     },
     "win": {
-      "icon": "assets/icon.jpg",
+      "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
