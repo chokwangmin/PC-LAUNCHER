@@ -1,0 +1,41 @@
+{
+  "name": "PC-Ultimate",
+  "version": "1.2.0",
+  "description": "PC Ultimate Launcher Pro",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "systeminformation": "^5.21.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.pc.ultimatelauncher",
+    "productName": "PC Ultimate Launcher Pro",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "assets/icon.jpg",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}

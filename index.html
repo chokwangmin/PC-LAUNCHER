@@ -1,0 +1,2761 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PC Ultimate Launcher Pro v1.1</title>
+    <style>
+      :root {
+        --primary: #00adb5;
+        --primary-glow: rgba(0, 173, 181, 0.4);
+        --bg-dark: #121318;
+        --bg-header: #1a1d26;
+        --bg-card: #1e222d;
+        --bg-card-hover: #262b38;
+        --border-color: #2a2e3d;
+        --text-color: #ffffff;
+        --text-sub: #a0a0a0;
+      }
+
+      body.theme-amber {
+        --primary: #ffb400;
+        --primary-glow: rgba(255, 180, 0, 0.4);
+      }
+
+      body.theme-red {
+        --primary: #ff4757;
+        --primary-glow: rgba(255, 71, 87, 0.4);
+      }
+
+      body.theme-purple {
+        --primary: #a55eea;
+        --primary-glow: rgba(165, 94, 234, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+      }
+
+      input,
+      textarea,
+      select,
+      button {
+        -webkit-app-region: no-drag !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        pointer-events: auto !important;
+      }
+
+      body {
+        color: var(--text-color);
+        font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 메인 런처 래퍼 */
+      #mainAppWrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-dark);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      /* 스티커 모드 전용 스타일 */
+      body.sticker-mode #mainAppWrapper {
+        display: none !important;
+      }
+
+      body.sticker-mode #stickerOverlay {
+        display: flex !important;
+      }
+
+      #stickerOverlay {
+        display: none;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        background: #1e222d;
+        border: 2px solid var(--primary);
+        box-shadow: 0 0 12px var(--primary-glow);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 24px;
+        -webkit-app-region: drag;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+
+      #stickerOverlay:hover {
+        transform: scale(1.08);
+        border-color: #ffffff;
+      }
+
+      #stickerIcon {
+        cursor: pointer;
+        -webkit-app-region: no-drag;
+
+        font-size: 20px;
+
+        width: 26px;
+        height: 26px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      header {
+        background: var(--bg-header);
+        border-bottom: 2px solid var(--primary);
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        -webkit-app-region: drag;
+      }
+
+      .logo {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--primary);
+        text-shadow: 0 0 10px var(--primary-glow);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        -webkit-app-region: no-drag;
+      }
+
+      .tab-btn {
+        background: #222831;
+        color: var(--text-sub);
+        border: 1px solid var(--border-color);
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover,
+      .tab-btn.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 10px var(--primary-glow);
+      }
+
+      .header-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        -webkit-app-region: no-drag;
+      }
+
+      .sticker-toggle-btn {
+        background: #222831;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        padding: 6px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .sticker-toggle-btn:hover {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .search-box input {
+        background: #222831;
+        border: 1px solid var(--border-color);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        outline: none;
+        width: 130px;
+        font-size: 12px;
+        transition: all 0.3s;
+      }
+
+      .search-box input:focus {
+        border-color: var(--primary);
+        width: 170px;
+      }
+
+      .action-btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--text-sub);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+      }
+
+      .grid-container {
+        display: grid;
+
+        grid-template-columns: repeat(auto-fill, 120px);
+
+        gap: 12px;
+
+        align-content: start;
+      }
+
+      .hero-grid-container {
+        display: grid;
+
+        grid-template-columns: repeat(auto-fill, 170px);
+
+        gap: 16px;
+
+        align-content: start;
+      }
+
+      .app-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: grab;
+        position: relative;
+        transition: transform 0.2s, background 0.2s, border-color 0.2s;
+      }
+
+      .app-card:active {
+        cursor: grabbing;
+      }
+
+      .app-card.dragging {
+        opacity: 0.4;
+      }
+
+      .app-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+        box-shadow: 0 4px 15px var(--primary-glow);
+        background: var(--bg-card-hover);
+      }
+
+      .app-icon {
+        font-size: 32px;
+        margin-bottom: 6px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .app-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .app-title {
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+        word-break: break-all;
+      }
+
+      .app-playtime {
+        font-size: 10px;
+        color: var(--primary);
+        margin-top: 4px;
+        font-weight: bold;
+      }
+
+      .app-card.hero-card {
+        padding: 20px 12px;
+        border: 1px solid rgba(0, 173, 181, 0.3);
+        background: linear-gradient(145deg, #1e222d, #161822);
+      }
+
+      .app-card.hero-card .app-icon {
+        font-size: 60px;
+        width: 68px;
+        height: 68px;
+        margin-bottom: 10px;
+      }
+
+      .app-card.hero-card .app-title {
+        font-size: 14px;
+        font-weight: 900;
+        color: #ffffff;
+      }
+
+      .card-actions {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        display: none;
+        gap: 4px;
+      }
+
+      .app-card:hover .card-actions {
+        display: flex;
+      }
+
+      .card-btn {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+
+      .card-btn.pin-btn:hover {
+        background: #ffb400;
+      }
+
+      .card-btn.edit-btn:hover {
+        background: var(--primary);
+      }
+
+      .card-btn.delete-btn:hover {
+        background: #ff4757;
+      }
+
+      .panel-box {
+        background: #1e222d;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 12px;
+      }
+
+      .panel-title {
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .memo-input-group {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+      }
+
+      .memo-input-group textarea {
+        flex: 1;
+        height: 50px;
+        background: #121318;
+        border: 1px solid var(--border-color);
+        color: #fff;
+        padding: 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        resize: none;
+        outline: none;
+      }
+
+      .memo-list {
+        max-height: 140px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .memo-item {
+        background: #121318;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 8px;
+        font-size: 11px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .memo-item span {
+        white-space: pre-wrap;
+        word-break: break-all;
+        flex: 1;
+      }
+
+      .memo-item button {
+        background: none;
+        border: none;
+        color: #ff4757;
+        cursor: pointer;
+        margin-left: 6px;
+        font-size: 11px;
+      }
+
+      .dday-form {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .dday-form input,
+      .dday-form select {
+        background: #121318;
+        border: 1px solid var(--border-color);
+        color: #fff;
+        padding: 6px 8px;
+        font-size: 11px;
+        border-radius: 4px;
+        outline: none;
+        width: 100%;
+      }
+
+      .time-select-group {
+        display: flex;
+        gap: 4px;
+      }
+
+      .dday-list {
+        font-size: 11px;
+        max-height: 160px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .dday-item {
+        background: #121318;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      footer {
+        background: #161821;
+        border-top: 1px solid var(--border-color);
+        padding: 8px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        color: var(--text-sub);
+        position: relative;
+        z-index: 10;
+      }
+
+      .sys-info {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .gauge-item {
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+
+      .gauge-item:hover {
+        background: #222831;
+        color: var(--primary);
+      }
+
+      .gauge-bar {
+        width: 40px;
+        height: 7px;
+        background: #222831;
+        border-radius: 4px;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+
+      .gauge-fill {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+        transition: width 0.5s;
+      }
+
+      .ram-clean-btn {
+        background: #222831;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .ram-clean-btn:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .power-btn {
+        color: #ff4757 !important;
+        border-color: #ff4757 !important;
+      }
+
+      .power-btn:hover {
+        background: #ff4757 !important;
+        border-color: #ff4757 !important;
+        color: #ffffff !important;
+      }
+
+      .sys-popup {
+        display: none;
+        position: absolute;
+        bottom: 40px;
+        left: 15px;
+        background: #1e222d;
+        border: 1px solid var(--primary);
+        border-radius: 6px;
+        padding: 12px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+        z-index: 200;
+        min-width: 280px;
+      }
+
+      .sys-popup-title {
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--primary);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+      }
+
+      .sys-popup-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 11px;
+      }
+
+      .sys-popup-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #121318;
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .sys-popup-row:hover {
+        background: #262b38;
+        border-left: 3px solid var(--primary);
+        transform: translateX(3px);
+      }
+
+      .sys-popup-row .name {
+        color: #fff;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 170px;
+      }
+
+      .sys-popup-row .val {
+        color: var(--primary);
+        font-weight: bold;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+      }
+
+      .modal-content {
+        background: #1e222d;
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 20px;
+        width: 440px;
+        box-shadow: 0 0 20px var(--primary-glow);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-bottom: 4px;
+      }
+
+      .form-group input[type="text"],
+      .form-group select {
+        width: 100%;
+        padding: 6px 10px;
+        background: #121318;
+        border: 1px solid var(--border-color);
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .path-input-group {
+        display: flex;
+        gap: 5px;
+      }
+
+      .path-input-group button {
+        background: #393e46;
+        color: white;
+        border: none;
+        padding: 0 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 11px;
+      }
+
+      .path-input-group button:hover {
+        background: var(--primary);
+      }
+
+      .icon-presets {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .icon-preset-btn {
+        background: #121318;
+        border: 1px solid var(--border-color);
+        color: #fff;
+        font-size: 16px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .icon-preset-btn:hover {
+        border-color: var(--primary);
+        background: #262b38;
+      }
+
+      .cat-list {
+        max-height: 100px;
+        overflow-y: auto;
+        margin-top: 5px;
+      }
+
+      .cat-item {
+        display: flex;
+        justify-content: space-between;
+        background: #121318;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        font-size: 11px;
+        border-radius: 3px;
+      }
+
+      .quit-modal-content {
+        background: #1a1d26;
+        border: 1px solid var(--primary);
+        border-radius: 12px;
+        padding: 24px;
+        width: 400px;
+        text-align: center;
+        box-shadow: 0 0 25px var(--primary-glow);
+      }
+
+      .quit-modal-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+        color: var(--primary);
+      }
+
+      .quit-modal-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #ffffff;
+        margin-bottom: 8px;
+      }
+
+      .quit-modal-desc {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+
+      .quit-modal-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .quit-btn {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .quit-btn-tray {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 0 10px var(--primary-glow);
+      }
+
+      .quit-btn-exit {
+        background: #222831;
+        color: #ff4757;
+        border: 1px solid #ff4757;
+      }
+
+      .quit-btn-cancel {
+        background: #2a2e3d;
+        color: var(--text-sub);
+      }
+
+      .toast {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        background: #1e222d;
+        border: 1px solid var(--primary);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px var(--primary-glow);
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      aside {
+        width: 330px;
+
+        min-width: 330px;
+
+        transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease;
+      }
+
+      aside.collapsed {
+        width: 0 !important;
+
+        min-width: 0 !important;
+
+        padding: 0 !important;
+
+        border-left: none !important;
+
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body onclick="closeSysPopup(event)">
+    <!-- 일반 모드 앱 전체 컨테이너 -->
+    <div id="mainAppWrapper">
+      <header>
+        <div class="logo">
+          <span>🎮 LAUNCHER PRO v1.1</span>
+          <span
+            style="
+              font-size: 10px;
+              background: var(--primary);
+              color: #000;
+              padding: 2px 6px;
+              border-radius: 10px;
+              font-weight: bold;
+            "
+            >Alt+Space</span
+          >
+        </div>
+        <div class="nav-tabs" id="categoryTabs"></div>
+        <div class="header-controls">
+          <button
+            class="sticker-toggle-btn"
+            id="stickerToggleBtn"
+            onclick="toggleStickerBtn()"
+          >
+            📌 스티커 모드
+          </button>
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="검색..."
+              onkeyup="filterApps()"
+            />
+          </div>
+          <button class="action-btn" onclick="openAddModal()">
+            + 항목 추가
+          </button>
+          <button
+            class="action-btn"
+            style="background: #393e46"
+            onclick="openSettingsModal()"
+          >
+            ⚙️ 설정
+          </button>
+        </div>
+      </header>
+
+      <div class="container">
+        <main id="mainArea">
+          <div id="pinnedSection" style="display: none">
+            <div class="section-title" style="color: #ffb400">
+              ⭐ 즐겨찾기 고정 항목
+            </div>
+            <div class="grid-container" id="pinnedGrid"></div>
+          </div>
+
+          <div>
+            <div class="section-title">📌 일반 바로가기</div>
+            <div class="grid-container" id="launcherGrid"></div>
+          </div>
+
+          <div>
+            <div class="section-title" style="color: var(--primary)">
+              🔥 빠른 실행 (주요 게임 & 주요 앱)
+            </div>
+            <div class="hero-grid-container" id="heroGrid"></div>
+          </div>
+        </main>
+
+        <aside id="sidePanel">
+          <div class="panel-box">
+            <div class="panel-title">📝 메모장 목록</div>
+            <div class="memo-input-group">
+              <textarea id="memoInput" placeholder="새 메모 작성..."></textarea>
+              <button class="action-btn" onclick="addMemo()">저장</button>
+            </div>
+            <div class="memo-list" id="memoList"></div>
+          </div>
+
+          <div class="panel-box">
+            <div class="panel-title">⏰ D-Day & 알림 일정</div>
+            <div class="dday-form">
+              <input type="text" id="ddayTitle" placeholder="일정 이름" />
+              <input type="date" id="ddayDate" />
+              <div class="time-select-group">
+                <select id="ddayHour"></select>
+                <select id="ddayMin"></select>
+              </div>
+              <select id="ddayAdvanceAlarm">
+                <option value="0">정시 알림 (미리 알림 없음)</option>
+                <option value="1">1분 전 미리 알림</option>
+                <option value="5">5분 전 미리 알림</option>
+                <option value="10">10분 전 미리 알림</option>
+              </select>
+              <button class="action-btn" onclick="addDDay()">일정 추가</button>
+            </div>
+            <div class="dday-list" id="ddayList"></div>
+          </div>
+        </aside>
+      </div>
+
+      <footer>
+        <div class="sys-info">
+          <span class="gauge-item" onclick="togglePopup(event, 'cpu')">
+            CPU: <b id="cpuText">0%</b>
+            <div class="gauge-bar">
+              <div class="gauge-fill" id="cpuBar"></div>
+            </div>
+          </span>
+          <span class="gauge-item" onclick="togglePopup(event, 'ram')">
+            RAM: <b id="ramText">0%</b>
+            <div class="gauge-bar">
+              <div class="gauge-fill" id="ramBar"></div>
+            </div>
+          </span>
+          <!-- <button class="ram-clean-btn" onclick="cleanRam()">
+            🧹 RAM 최적화
+          </button> -->
+          <span class="gauge-item" onclick="togglePopup(event, 'disk')">
+            DISK: <b id="diskText">0%</b>
+            <div class="gauge-bar">
+              <div class="gauge-fill" id="diskBar"></div>
+            </div>
+          </span>
+          <span
+            >네트워크: ⬇️ <b id="downText">0</b>MB/s ⬆
+            <b id="upText">0</b>MB/s</span
+          >
+          <span
+            >Ping:
+            <b id="pingText" style="color: var(--primary)">-- ms</b></span
+          >
+        </div>
+
+        <button class="ram-clean-btn" onclick="togglePcManager(event)">
+          🛠 PC관리
+        </button>
+
+        <button
+          class="ram-clean-btn"
+          id="sideToggleBtn"
+          onclick="toggleSidePanel()"
+        >
+          📋 메모&D-Day
+        </button>
+        <button
+          class="ram-clean-btn power-btn"
+          onclick="togglePowerMenu(event)"
+        >
+          ⏻ 전원
+        </button>
+        <div>
+          <span id="itemCount">총 0개 항목</span> |
+          <span id="clock">00:00:00</span>
+        </div>
+        <div class="sys-popup" id="sysPopup" onclick="event.stopPropagation();">
+          <div class="sys-popup-title" id="sysPopupTitle">시스템 정보</div>
+
+          <div class="sys-popup-list" id="sysPopupList"></div>
+        </div>
+        <div
+          class="sys-popup"
+          id="pcManagerPopup"
+          onclick="event.stopPropagation();"
+        >
+          <div class="sys-popup-title">🛠 PC 관리</div>
+
+          <div class="sys-popup-list">
+            <div class="sys-popup-row" onclick="openTaskManager()">
+              <span class="name">⚙ 작업 관리자</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="openDownloadsFolder()">
+              <span class="name">📁 다운로드 폴더</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="openRecycleBin()">
+              <span class="name">🗑 휴지통 열기</span>
+              <span class="val">▶</span>
+            </div>
+            <div class="sys-popup-row" onclick="emptyRecycleBin()">
+              <span class="name">🗑 휴지통 비우기</span>
+              <span class="val">▶</span>
+            </div>
+            <div class="sys-popup-row" onclick="cleanTempFiles()">
+              <span class="name">🧹 임시파일 정리</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="openDiskCleanup()">
+              <span class="name">💽 디스크 정리</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="openStartupFolder()">
+              <span class="name">⚡ 시작프로그램 폴더</span>
+              <span class="val">▶</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="sys-popup"
+          id="powerPopup"
+          onclick="event.stopPropagation();"
+        >
+          <div class="sys-popup-title">⏻ 전원</div>
+
+          <div class="sys-popup-list">
+            <div class="sys-popup-row" onclick="lockWindows()">
+              <span class="name">🔒 화면 잠금</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="sleepWindows()">
+              <span class="name">🌙 절전 모드</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="restartWindows()">
+              <span class="name">🔄 컴퓨터 재시작</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="shutdownWindows()">
+              <span class="name">⛔ 컴퓨터 종료</span>
+              <span class="val">▶</span>
+            </div>
+
+            <!-- <div class="sys-popup-row" onclick="lockWindows()">
+              <span class="name">🔒 화면 잠금</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="sleepWindows()">
+              <span class="name">🌙 절전 모드</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="restartWindows()">
+              <span class="name">🔄 컴퓨터 재시작</span>
+              <span class="val">▶</span>
+            </div>
+
+            <div class="sys-popup-row" onclick="shutdownWindows()">
+              <span class="name">⛔ 컴퓨터 종료</span>
+              <span class="val">▶</span>
+            </div> -->
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- 스티커 모드 55x55 원형 버튼 -->
+    <div id="stickerOverlay" title="더블클릭 시 런처 복원">
+      <span id="stickerIcon">🎮</span>
+    </div>
+
+    <!-- 항목 추가 / 수정 모달 -->
+    <div class="modal" id="addModal">
+      <div class="modal-content">
+        <h3 style="color: var(--primary); margin-bottom: 12px" id="modalTitle">
+          항목 추가
+        </h3>
+        <input type="hidden" id="editIndex" value="-1" />
+        <div class="form-group">
+          <label>유형</label>
+          <select id="itemType">
+            <option value="exe">실행 파일 (.exe)</option>
+            <option value="folder">폴더 경로</option>
+            <option value="url">웹사이트 링크 (URL)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>이름</label>
+          <input
+            type="text"
+            id="itemName"
+            placeholder="예: 아이온2, 작업 폴더"
+          />
+        </div>
+        <div class="form-group">
+          <label>카테고리</label>
+          <select id="itemCategory"></select>
+        </div>
+        <div class="form-group">
+          <label>배치 및 실행 옵션</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              background: #121318;
+              padding: 8px;
+              border-radius: 4px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" id="itemIsHero" style="width: auto" />
+              ⭐ 하단 빠른 실행 섹션에 강조 배치
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" id="itemRunAsAdmin" style="width: auto" />
+              🛡 관리자 권한으로 실행
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>실행 인자 / 매개변수 (선택)</label>
+          <input
+            type="text"
+            id="itemArgs"
+            placeholder="예: -novid -high -windowed"
+          />
+        </div>
+        <div class="form-group">
+          <label>경로 / URL</label>
+          <div class="path-input-group">
+            <input
+              type="text"
+              id="itemPath"
+              placeholder="경로 또는 https://..."
+            />
+            <button onclick="browsePath()">찾기</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>아이콘 선택 (이모지 / 커스텀 이미지 파일)</label>
+          <div class="icon-presets">
+            <button class="icon-preset-btn" onclick="selectPresetIcon('⚔️')">
+              ⚔
+            </button>
+            <button class="icon-preset-btn" onclick="selectPresetIcon('🎮')">
+              🎮
+            </button>
+            <button class="icon-preset-btn" onclick="selectPresetIcon('💻')">
+              💻
+            </button>
+            <button class="icon-preset-btn" onclick="selectPresetIcon('🌐')">
+              🌐
+            </button>
+            <button class="icon-preset-btn" onclick="selectPresetIcon('📝')">
+              📝
+            </button>
+            <button class="icon-preset-btn" onclick="selectPresetIcon('📁')">
+              📁
+            </button>
+          </div>
+          <div class="path-input-group">
+            <input
+              type="text"
+              id="itemIcon"
+              value="🎮"
+              placeholder="이모지 또는 이미지 파일 경로"
+            />
+            <button onclick="browseImageIcon()">이미지 찾기</button>
+          </div>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 15px;
+          "
+        >
+          <button
+            style="
+              background: #393e46;
+              color: white;
+              border: none;
+              padding: 6px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            onclick="closeModal('addModal')"
+          >
+            취소
+          </button>
+          <button class="action-btn" onclick="saveItem()">저장</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설정 모달 -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-content">
+        <h3 style="color: var(--primary); margin-bottom: 12px">
+          런처 및 백업 설정 (v1.1)
+        </h3>
+
+        <div class="form-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              cursor: pointer;
+              font-weight: bold;
+              color: var(--primary);
+            "
+          >
+            <input
+              type="checkbox"
+              id="windowLockCheck"
+              style="width: auto"
+              onchange="toggleWindowLock(this.checked)"
+            />
+            🔒 창 위치 이동 및 크기 조절 잠금 (체크 해제 시 조절 가능)
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>🎨 창 투명도 조절 (<span id="opacityVal">100</span>%)</label>
+          <input
+            type="range"
+            id="opacityRange"
+            min="0.3"
+            max="1.0"
+            step="0.05"
+            value="1.0"
+            style="width: 100%; cursor: pointer"
+            oninput="changeOpacity(this.value)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>디스플레이 모니터 위치 설정</label>
+          <select id="monitorSelect" onchange="updateAppConfig()"></select>
+        </div>
+
+        <div class="form-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="pinToDesktopCheck"
+              style="width: auto"
+              onchange="updateAppConfig()"
+            />
+            🖥️ 바탕화면 최상단 고정 모드
+          </label>
+        </div>
+        <div class="form-group">
+          <label>네온 테마</label>
+          <select id="themeSelect" onchange="changeTheme(this.value)">
+            <option value="">시안 (기본)</option>
+            <option value="theme-amber">엠버 골드</option>
+            <option value="theme-red">파이렛 레드</option>
+            <option value="theme-purple">럭셔리 퍼플</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>카테고리 관리</label>
+          <div class="path-input-group">
+            <input type="text" id="newCatName" placeholder="새 카테고리 이름" />
+            <button onclick="addCategory()">추가</button>
+          </div>
+          <div class="cat-list" id="customCatList"></div>
+        </div>
+        <div class="form-group">
+          <label>데이터 백업 / 불러오기 (JSON)</label>
+          <div style="display: flex; gap: 8px">
+            <button
+              class="action-btn"
+              style="flex: 1"
+              onclick="exportLauncherData()"
+            >
+              💾 데이터 내보내기
+            </button>
+            <button
+              class="action-btn"
+              style="flex: 1; background: #393e46"
+              onclick="importLauncherData()"
+            >
+              📂 데이터 불러오기
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="autoMinCheck"
+              style="width: auto"
+              onchange="toggleAutoMin(this.checked)"
+            />
+            프로그램 실행 시 런처 자동 최소화
+          </label>
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="startupCheck"
+              style="width: auto"
+              onchange="toggleStartup(this.checked)"
+            />
+            Windows 시작 시 자동 실행
+          </label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 15px">
+          <button class="action-btn" onclick="closeModal('settingsModal')">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 커스텀 종료 모달 -->
+    <div class="modal" id="quitConfirmModal">
+      <div class="quit-modal-content">
+        <div class="quit-modal-icon" id="confirmIcon">⚙️</div>
+        <div class="quit-modal-title" id="confirmTitle">
+          프로그램을 종료하시겠습니까?
+        </div>
+        <div class="quit-modal-desc" id="confirmDesc">
+          트레이로 최소화하면 백그라운드에서<br />
+          알림 일정 및 시스템 모니터링이 계속 유지됩니다.
+        </div>
+        <div class="quit-modal-buttons">
+          <button
+            class="quit-btn quit-btn-tray"
+            onclick="handleQuitOption('tray')"
+          >
+            📥 백그라운드 트레이로 이동
+          </button>
+          <button
+            class="quit-btn quit-btn-exit"
+            onclick="handleQuitOption('quit')"
+          >
+            🔴 완전 종료
+          </button>
+          <button
+            class="quit-btn quit-btn-cancel"
+            onclick="handleQuitOption('cancel')"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="actionConfirmModal">
+      <div class="quit-modal-content">
+        <div class="quit-modal-icon" id="actionConfirmIcon">⚠️</div>
+
+        <div class="quit-modal-title" id="actionConfirmTitle">확인</div>
+
+        <div class="quit-modal-desc" id="actionConfirmDesc">
+          정말 실행하시겠습니까?
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px">
+          <button
+            class="quit-btn quit-btn-cancel"
+            style="flex: 1"
+            onclick="closeActionConfirm()"
+          >
+            취소
+          </button>
+
+          <button
+            class="quit-btn quit-btn-tray"
+            style="flex: 1"
+            onclick="executeActionConfirm()"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="infoModal">
+      <div class="quit-modal-content">
+        <div class="quit-modal-icon" id="infoModalIcon">✅</div>
+
+        <div class="quit-modal-title" id="infoModalTitle">완료</div>
+
+        <div class="quit-modal-desc" id="infoModalDesc">
+          작업이 완료되었습니다.
+        </div>
+
+        <div style="margin-top: 20px">
+          <button class="quit-btn quit-btn-tray" onclick="closeInfoModal()">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // 전역 상태 변수
+      let isStickerMode = false;
+      let currentTab = "all";
+      let latestSysData = null;
+      let activePopupType = null;
+      let draggedIndex = null;
+      let actionConfirmHandler = null;
+      let sidePanelCollapsed = true;
+
+      const defaultCategories = [
+        { id: "all", name: "전체" },
+        { id: "game", name: "게임" },
+        { id: "work", name: "업무/폴더" },
+        { id: "web", name: "북마크" },
+      ];
+
+      const defaultApps = [
+        {
+          id: "app_1",
+          name: "C 드라이브",
+          cat: "work",
+          icon: "💻",
+          type: "folder",
+          path: "C:\\",
+          isHero: false,
+          isPinned: true,
+          args: "",
+          runAsAdmin: false,
+          playTimeSec: 0,
+        },
+        {
+          id: "app_2",
+          name: "Google",
+          cat: "web",
+          icon: "🌐",
+          type: "url",
+          path: "https://www.google.com",
+          isHero: false,
+          isPinned: false,
+          args: "",
+          runAsAdmin: false,
+          playTimeSec: 0,
+        },
+        {
+          id: "app_3",
+          name: "메모장",
+          cat: "work",
+          icon: "📝",
+          type: "exe",
+          path: "C:\\Windows\\notepad.exe",
+          isHero: false,
+          isPinned: false,
+          args: "",
+          runAsAdmin: false,
+          playTimeSec: 0,
+        },
+        {
+          id: "app_4",
+          name: "추천 대표 게임",
+          cat: "game",
+          icon: "⚔️",
+          type: "url",
+          path: "https://www.nexon.com",
+          isHero: true,
+          isPinned: true,
+          args: "",
+          runAsAdmin: false,
+          playTimeSec: 0,
+        },
+      ];
+
+      let categories =
+        JSON.parse(localStorage.getItem("launcher_cats")) || defaultCategories;
+      let apps =
+        JSON.parse(localStorage.getItem("launcher_apps")) || defaultApps;
+      let memos = JSON.parse(localStorage.getItem("launcher_memos")) || [];
+      let ddays = JSON.parse(localStorage.getItem("launcher_ddays")) || [];
+      let autoMinimize =
+        JSON.parse(localStorage.getItem("launcher_automin")) ?? true;
+
+      async function init() {
+        renderTabs();
+        renderApps();
+        renderMemos();
+        initDDayTimeSelects();
+        renderDDays();
+        loadTheme();
+        renderCatSettings();
+        await loadAppConfigUI();
+
+        initStickerEvents();
+
+        document.getElementById("autoMinCheck").checked = autoMinimize;
+        startSystemMonitor();
+        startAlarmChecker();
+
+        if (window.launcherAPI) {
+          window.launcherAPI.onShowQuitConfirm(() => {
+            document.getElementById("quitConfirmModal").style.display = "flex";
+          });
+
+          window.launcherAPI.onSyncConfigUI((event, config) => {
+            const pinCheck = document.getElementById("pinToDesktopCheck");
+            if (pinCheck) pinCheck.checked = !!config.pinToDesktop;
+          });
+
+          window.launcherAPI.onUpdatePlaytime(
+            (event, { appId, elapsedSeconds }) => {
+              const targetApp = apps.find((a) => a.id === appId);
+              if (targetApp) {
+                targetApp.playTimeSec =
+                  (targetApp.playTimeSec || 0) + elapsedSeconds;
+                localStorage.setItem("launcher_apps", JSON.stringify(apps));
+                renderApps();
+              }
+            }
+          );
+        }
+        document.getElementById("sidePanel").classList.add("collapsed");
+
+        document.getElementById("sideToggleBtn").innerText = "📋 패널 열기";
+      }
+
+      function toggleStickerBtn() {
+        toggleStickerMode(!isStickerMode);
+      }
+
+      function toggleStickerMode(enable) {
+        isStickerMode = enable;
+        const btn = document.getElementById("stickerToggleBtn");
+
+        if (isStickerMode) {
+          document.body.classList.add("sticker-mode");
+          if (btn) btn.innerText = "📌 일반 모드";
+        } else {
+          document.body.classList.remove("sticker-mode");
+          if (btn) btn.innerText = "📌 스티커 모드";
+        }
+
+        if (window.launcherAPI && window.launcherAPI.setStickerMode) {
+          window.launcherAPI.setStickerMode(isStickerMode);
+        }
+      }
+
+      function initStickerEvents() {
+        const icon = document.getElementById("stickerIcon");
+
+        if (!icon) return;
+
+        icon.addEventListener("dblclick", () => {
+          toggleStickerMode(false);
+        });
+      }
+
+      async function loadAppConfigUI() {
+        if (!window.launcherAPI || !window.launcherAPI.getAppConfig) return;
+        const { config, displays } = await window.launcherAPI.getAppConfig();
+        const monitorSelect = document.getElementById("monitorSelect");
+        monitorSelect.innerHTML = "";
+
+        displays.forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d.index;
+          opt.innerText = d.label;
+          if (d.index === config.monitorIndex) opt.selected = true;
+          monitorSelect.appendChild(opt);
+        });
+
+        document.getElementById("pinToDesktopCheck").checked =
+          !!config.pinToDesktop;
+        document.getElementById("windowLockCheck").checked = !!config.isLocked;
+
+        const opacity = config.opacity ?? 1.0;
+        document.getElementById("opacityRange").value = opacity;
+        document.getElementById("opacityVal").innerText = Math.round(
+          opacity * 100
+        );
+
+        if (config.isSticker) {
+          toggleStickerMode(true);
+        }
+      }
+
+      async function updateAppConfig() {
+        const monitorIndex = parseInt(
+          document.getElementById("monitorSelect").value,
+          10
+        );
+        const pinToDesktop =
+          document.getElementById("pinToDesktopCheck").checked;
+        if (window.launcherAPI) {
+          await window.launcherAPI.saveAppConfig({
+            monitorIndex,
+            pinToDesktop,
+          });
+        }
+      }
+
+      function toggleWindowLock(locked) {
+        if (window.launcherAPI) window.launcherAPI.setWindowLocked(locked);
+      }
+
+      function changeOpacity(val) {
+        const opacity = parseFloat(val);
+        document.getElementById("opacityVal").innerText = Math.round(
+          opacity * 100
+        );
+        if (window.launcherAPI) window.launcherAPI.setWindowOpacity(opacity);
+      }
+
+      function formatPlayTime(seconds) {
+        if (!seconds || seconds <= 0) return "";
+        const hours = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        if (hours > 0) return `⏱️ ${hours}시간 ${mins}분`;
+        return `⏱️ ${mins}분`;
+      }
+
+      function handleQuitOption(type) {
+        document.getElementById("quitConfirmModal").style.display = "none";
+        if (window.launcherAPI) {
+          if (type === "tray") window.launcherAPI.minimizeToTray();
+          else if (type === "quit") window.launcherAPI.quitForce();
+        }
+      }
+
+      function togglePin(index) {
+        apps[index].isPinned = !apps[index].isPinned;
+        localStorage.setItem("launcher_apps", JSON.stringify(apps));
+        renderApps();
+      }
+
+      function renderTabs() {
+        const tabsContainer = document.getElementById("categoryTabs");
+        const catSelect = document.getElementById("itemCategory");
+        tabsContainer.innerHTML = "";
+        catSelect.innerHTML = "";
+
+        categories.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.className = `tab-btn ${currentTab === cat.id ? "active" : ""}`;
+          btn.innerText = cat.name;
+          btn.onclick = () => {
+            currentTab = cat.id;
+            renderTabs();
+            renderApps();
+          };
+          tabsContainer.appendChild(btn);
+
+          if (cat.id !== "all") {
+            const opt = document.createElement("option");
+            opt.value = cat.id;
+            opt.innerText = cat.name;
+            catSelect.appendChild(opt);
+          }
+        });
+      }
+      function createAppCard(app, realIndex) {
+        const card = document.createElement("div");
+
+        const isHero = !!app.isHero;
+
+        card.className = `app-card ${isHero ? "hero-card" : ""}`;
+
+        card.draggable = true;
+
+        card.ondragstart = () => {
+          draggedIndex = realIndex;
+          card.classList.add("dragging");
+        };
+
+        card.ondragend = () => {
+          card.classList.remove("dragging");
+          draggedIndex = null;
+        };
+
+        card.ondragover = (e) => {
+          e.preventDefault();
+        };
+
+        card.ondrop = (e) => {
+          e.preventDefault();
+
+          if (draggedIndex !== null && draggedIndex !== realIndex) {
+            const targetItem = apps.splice(draggedIndex, 1)[0];
+
+            apps.splice(realIndex, 0, targetItem);
+
+            localStorage.setItem("launcher_apps", JSON.stringify(apps));
+
+            renderApps();
+          }
+        };
+
+        card.onclick = (e) => {
+          if (e.target.closest(".card-actions")) return;
+
+          launchItem(app);
+        };
+
+        const playTimeText = formatPlayTime(app.playTimeSec);
+
+        card.innerHTML = `
+        <div class="card-actions">
+            <button class="card-btn pin-btn"
+                onclick="togglePin(${realIndex})">
+                ${app.isPinned ? "⭐" : "☆"}
+            </button>
+
+            <button class="card-btn edit-btn"
+                onclick="openEditModal(${realIndex})">
+                ✏️
+            </button>
+
+            <button class="card-btn delete-btn"
+                onclick="deleteItem(${realIndex})">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="app-icon">
+            ${getIconHTML(app.icon)}
+        </div>
+
+        <div class="app-title">
+            ${app.name}
+        </div>
+
+        ${
+          playTimeText
+            ? `<div class="app-playtime">
+                ${playTimeText}
+            </div>`
+            : ""
+        }
+    `;
+
+        return card;
+      }
+
+      function renderApps() {
+        console.time("renderApps");
+
+        const pinnedSection = document.getElementById("pinnedSection");
+
+        const pinnedGrid = document.getElementById("pinnedGrid");
+
+        const topGrid = document.getElementById("launcherGrid");
+
+        const heroGrid = document.getElementById("heroGrid");
+
+        const searchQ = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        pinnedGrid.innerHTML = "";
+        topGrid.innerHTML = "";
+        heroGrid.innerHTML = "";
+
+        const appIndexMap = new Map();
+
+        apps.forEach((app, idx) => {
+          appIndexMap.set(app.id, idx);
+        });
+
+        const filtered = apps.filter((app) => {
+          const matchTab = currentTab === "all" || app.cat === currentTab;
+
+          const matchSearch = app.name.toLowerCase().includes(searchQ);
+
+          return matchTab && matchSearch;
+        });
+
+        const pinnedFragment = document.createDocumentFragment();
+
+        const topFragment = document.createDocumentFragment();
+
+        const heroFragment = document.createDocumentFragment();
+
+        let pinnedCount = 0;
+
+        filtered.forEach((app) => {
+          const realIndex = appIndexMap.get(app.id);
+
+          const card = createAppCard(app, realIndex);
+
+          if (app.isPinned) {
+            pinnedFragment.appendChild(createAppCard(app, realIndex));
+
+            pinnedCount++;
+          }
+
+          if (app.isHero) {
+            heroFragment.appendChild(card);
+          } else {
+            topFragment.appendChild(card);
+          }
+        });
+
+        pinnedGrid.appendChild(pinnedFragment);
+
+        heroGrid.appendChild(heroFragment);
+
+        topGrid.appendChild(topFragment);
+
+        pinnedSection.style.display = pinnedCount > 0 ? "block" : "none";
+
+        document.getElementById(
+          "itemCount"
+        ).innerText = `총 ${filtered.length}개 항목`;
+
+        console.timeEnd("renderApps");
+      }
+
+      function launchItem(app) {
+        if (!window.launcherAPI) return;
+
+        app.launchCount = (app.launchCount || 0) + 1;
+
+        app.lastRunTime = Date.now();
+
+        localStorage.setItem("launcher_apps", JSON.stringify(apps));
+
+        if (app.type === "folder") window.launcherAPI.openFolder(app.path);
+        else if (app.type === "url") window.launcherAPI.openUrl(app.path);
+        else {
+          window.launcherAPI.runExeCustom({
+            exePath: app.path,
+            args: app.args || "",
+            runAsAdmin: !!app.runAsAdmin,
+            autoMinimize,
+            appId: app.id,
+          });
+        }
+      }
+
+      function openAddModal() {
+        document.getElementById("modalTitle").innerText = "항목 추가";
+        document.getElementById("editIndex").value = "-1";
+        document.getElementById("itemName").value = "";
+        document.getElementById("itemPath").value = "";
+        document.getElementById("itemArgs").value = "";
+        document.getElementById("itemIcon").value = "🎮";
+        document.getElementById("itemIsHero").checked = false;
+        document.getElementById("itemRunAsAdmin").checked = false;
+        document.getElementById("addModal").style.display = "flex";
+      }
+
+      function openEditModal(index) {
+        const item = apps[index];
+        if (!item) return;
+        document.getElementById("modalTitle").innerText = "항목 수정";
+        document.getElementById("editIndex").value = index;
+        document.getElementById("itemType").value = item.type || "exe";
+        document.getElementById("itemName").value = item.name;
+        document.getElementById("itemCategory").value = item.cat;
+        document.getElementById("itemPath").value = item.path;
+        document.getElementById("itemArgs").value = item.args || "";
+        document.getElementById("itemIcon").value = item.icon;
+        document.getElementById("itemIsHero").checked = !!item.isHero;
+        document.getElementById("itemRunAsAdmin").checked = !!item.runAsAdmin;
+        document.getElementById("addModal").style.display = "flex";
+      }
+
+      function saveItem() {
+        const editIndex = parseInt(
+          document.getElementById("editIndex").value,
+          10
+        );
+        const name = document.getElementById("itemName").value.trim();
+        const path = document.getElementById("itemPath").value.trim();
+        const args = document.getElementById("itemArgs").value.trim();
+        const cat = document.getElementById("itemCategory").value;
+        const icon = document.getElementById("itemIcon").value.trim() || "🎮";
+        const type = document.getElementById("itemType").value;
+        const isHero = document.getElementById("itemIsHero").checked;
+        const runAsAdmin = document.getElementById("itemRunAsAdmin").checked;
+
+        if (!name || !path) return showToast("이름과 경로를 입력하세요.");
+
+        if (editIndex >= 0) {
+          apps[editIndex] = {
+            ...apps[editIndex],
+            name,
+            cat,
+            icon,
+            type,
+            path,
+            args,
+            isHero,
+            runAsAdmin,
+          };
+        } else {
+          apps.push({
+            id: crypto.randomUUID(),
+
+            name,
+            cat,
+            icon,
+            type,
+            path,
+            args,
+
+            isHero,
+            runAsAdmin,
+
+            isPinned: false,
+            playTimeSec: 0,
+
+            launchCount: 0,
+            lastRunTime: null,
+          });
+        }
+
+        localStorage.setItem("launcher_apps", JSON.stringify(apps));
+        closeModal("addModal");
+        renderApps();
+      }
+
+      async function exportLauncherData() {
+        if (!window.launcherAPI) return;
+        const dataStr = JSON.stringify(
+          { apps, categories, memos, ddays },
+          null,
+          2
+        );
+        const res = await window.launcherAPI.exportData(dataStr);
+        if (res) {
+          showToast("💾 데이터 백업 완료");
+        }
+      }
+
+      async function importLauncherData() {
+        if (!window.launcherAPI) return;
+        const data = await window.launcherAPI.importData();
+        if (data) {
+          if (data.apps) apps = data.apps;
+          if (data.categories) categories = data.categories;
+          if (data.memos) memos = data.memos;
+          if (data.ddays) ddays = data.ddays;
+
+          localStorage.setItem("launcher_apps", JSON.stringify(apps));
+          localStorage.setItem("launcher_cats", JSON.stringify(categories));
+          localStorage.setItem("launcher_memos", JSON.stringify(memos));
+          localStorage.setItem("launcher_ddays", JSON.stringify(ddays));
+
+          renderTabs();
+          renderApps();
+          renderMemos();
+          renderDDays();
+          showToast("데이터 복구가 완료되었습니다.");
+        }
+      }
+
+      function cleanRam() {
+        showInfoModal(
+          "🧹",
+          "RAM 최적화",
+          "RAM 영역 최적화 및 캐시 정리가 완료되었습니다."
+        );
+      }
+
+      function cleanTempFiles() {
+        showActionConfirm(
+          "🧹",
+          "임시파일 정리",
+          "Windows 임시파일을 정리하시겠습니까?",
+
+          async () => {
+            const result = await window.launcherAPI.cleanTempFiles();
+
+            if (result) {
+              showInfoModal(
+                "✅",
+
+                "임시파일 정리",
+
+                "임시파일 정리가 완료되었습니다."
+              );
+            } else {
+              showInfoModal(
+                "❌",
+
+                "정리 실패",
+
+                "임시파일 정리 중 오류가 발생했습니다."
+              );
+            }
+          }
+        );
+      }
+
+      function openDiskCleanup() {
+        if (!window.launcherAPI) return;
+
+        window.launcherAPI.openDiskCleanup();
+      }
+
+      function openStartupFolder() {
+        if (!window.launcherAPI) return;
+
+        window.launcherAPI.openStartupFolder();
+      }
+
+      async function startSystemMonitor() {
+        try {
+          if (!window.launcherAPI) return;
+          const info = await window.launcherAPI.getSysInfo();
+          const ping = await window.launcherAPI.getPing();
+          latestSysData = info;
+
+          document.getElementById("cpuText").innerText =
+            (info?.cpuLoad ?? 0) + "%";
+          document.getElementById("cpuBar").style.width =
+            (info?.cpuLoad ?? 0) + "%";
+          document.getElementById("ramText").innerText =
+            (info?.memUsage ?? 0) + "%";
+          document.getElementById("ramBar").style.width =
+            (info?.memUsage ?? 0) + "%";
+          document.getElementById("diskText").innerText =
+            (info?.diskUsage ?? 0) + "%";
+          document.getElementById("diskBar").style.width =
+            (info?.diskUsage ?? 0) + "%";
+          document.getElementById("downText").innerText =
+            info?.downSpeed ?? "0.0";
+          document.getElementById("upText").innerText = info?.upSpeed ?? "0.0";
+          document.getElementById("pingText").innerText =
+            ping > 0 ? `${ping} ms` : "보통";
+
+          if (activePopupType) renderPopupContent(activePopupType);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setTimeout(startSystemMonitor, 10000);
+        }
+      }
+
+      function getIconHTML(iconStr) {
+        if (!iconStr) return "🎮";
+        const isImage =
+          iconStr.includes("/") ||
+          iconStr.includes("\\") ||
+          iconStr.startsWith("data:image");
+        if (isImage) {
+          const safePath = iconStr.replace(/\\/g, "/");
+          return `<img src="file://${safePath}" alt="icon" onerror="this.outerHTML='🎮'">`;
+        }
+        return iconStr;
+      }
+
+      function deleteItem(index) {
+        showActionConfirm(
+          "🗑",
+
+          "항목 삭제",
+
+          "이 항목을 삭제하시겠습니까?",
+
+          async () => {
+            apps.splice(index, 1);
+
+            localStorage.setItem("launcher_apps", JSON.stringify(apps));
+
+            renderApps();
+          }
+        );
+      }
+
+      function addMemo() {
+        const text = document.getElementById("memoInput").value.trim();
+        if (!text) return;
+        memos.unshift({
+          id: Date.now(),
+          text,
+          time: new Date().toLocaleString(),
+        });
+        localStorage.setItem("launcher_memos", JSON.stringify(memos));
+        document.getElementById("memoInput").value = "";
+        renderMemos();
+      }
+
+      function deleteMemo(id) {
+        memos = memos.filter((m) => m.id !== id);
+        localStorage.setItem("launcher_memos", JSON.stringify(memos));
+        renderMemos();
+      }
+
+      function renderMemos() {
+        const list = document.getElementById("memoList");
+        list.innerHTML = "";
+        memos.forEach((m) => {
+          const item = document.createElement("div");
+          item.className = "memo-item";
+          item.innerHTML = `<span>${m.text}</span><button onclick="deleteMemo(${m.id})">✕</button>`;
+          list.appendChild(item);
+        });
+      }
+
+      function addDDay() {
+        const title = document.getElementById("ddayTitle").value.trim();
+        const dateStr = document.getElementById("ddayDate").value;
+        const hour = document.getElementById("ddayHour").value;
+        const min = document.getElementById("ddayMin").value;
+        const advanceMin = parseInt(
+          document.getElementById("ddayAdvanceAlarm").value,
+          10
+        );
+
+        if (!title || !dateStr)
+          return showToast("일정 이름과 날짜를 선택해주세요.");
+
+        const datetime = `${dateStr}T${hour}:${min}:00`;
+
+        ddays.push({
+          id: Date.now(),
+          title,
+          datetime,
+          advanceMin,
+          advanceNotified: false,
+          notified: false,
+        });
+        localStorage.setItem("launcher_ddays", JSON.stringify(ddays));
+        document.getElementById("ddayTitle").value = "";
+        renderDDays();
+      }
+
+      function deleteDDay(id) {
+        ddays = ddays.filter((d) => d.id !== id);
+        localStorage.setItem("launcher_ddays", JSON.stringify(ddays));
+        renderDDays();
+      }
+
+      function renderDDays() {
+        const list = document.getElementById("ddayList");
+        list.innerHTML = "";
+        const now = new Date();
+
+        ddays.forEach((item) => {
+          const target = new Date(item.datetime);
+          const diffMs = target - now;
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+          let dDayStr =
+            diffMs > 0
+              ? diffDays === 0
+                ? "오늘 예정"
+                : `D-${diffDays}`
+              : `D+${Math.abs(diffDays)}`;
+          const advanceText =
+            item.advanceMin > 0 ? ` (${item.advanceMin}분 전 알림)` : "";
+
+          const div = document.createElement("div");
+          div.className = "dday-item";
+          div.innerHTML = `
+                    <div class="dday-info">
+                        <b>${item.title}${advanceText}</b>
+                        <span class="dday-time-text">${target.toLocaleString()}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <b style="color:var(--primary);">${dDayStr}</b>
+                        <button onclick="deleteDDay(${
+                          item.id
+                        })" style="background:none; border:none; color:#ff4757; cursor:pointer;">✕</button>
+                    </div>
+                `;
+          list.appendChild(div);
+        });
+      }
+
+      function startAlarmChecker() {
+        setInterval(() => {
+          if (ddays.length === 0) return;
+          const now = new Date();
+          let needUpdate = false;
+
+          ddays.forEach((item) => {
+            const target = new Date(item.datetime);
+
+            if (item.advanceMin > 0 && !item.advanceNotified) {
+              const advanceTime = new Date(
+                target.getTime() - item.advanceMin * 60 * 1000
+              );
+              if (now >= advanceTime && now < target) {
+                item.advanceNotified = true;
+                needUpdate = true;
+                if (window.launcherAPI) {
+                  window.launcherAPI.sendNotification({
+                    title: `⏳ [미리 알림] ${item.title}`,
+                    body: `일정 시작 ${
+                      item.advanceMin
+                    }분 전입니다!\n(${target.toLocaleTimeString()})`,
+                  });
+                }
+              }
+            }
+
+            if (!item.notified && now >= target) {
+              item.notified = true;
+              needUpdate = true;
+              if (window.launcherAPI) {
+                window.launcherAPI.sendNotification({
+                  title: `⏰ [알림] ${item.title}`,
+                  body: `설정하신 일정 시간이 되었습니다!\n(${target.toLocaleTimeString()})`,
+                });
+              }
+            }
+          });
+
+          if (needUpdate) {
+            localStorage.setItem("launcher_ddays", JSON.stringify(ddays));
+            renderDDays();
+          }
+        }, 1000);
+      }
+
+      function initDDayTimeSelects() {
+        const hourSelect = document.getElementById("ddayHour");
+        const minSelect = document.getElementById("ddayMin");
+        hourSelect.innerHTML = "";
+        minSelect.innerHTML = "";
+
+        for (let i = 0; i < 24; i++) {
+          const opt = document.createElement("option");
+          const val = String(i).padStart(2, "0");
+          opt.value = val;
+          opt.innerText = `${val}시`;
+          hourSelect.appendChild(opt);
+        }
+        for (let i = 0; i < 60; i++) {
+          const opt = document.createElement("option");
+          const val = String(i).padStart(2, "0");
+          opt.value = val;
+          opt.innerText = `${val}분`;
+          minSelect.appendChild(opt);
+        }
+
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("ddayDate").value = today;
+      }
+
+      function addCategory() {
+        const catName = document.getElementById("newCatName").value.trim();
+        if (!catName) return;
+        const catId = "cat_" + Date.now();
+        categories.push({ id: catId, name: catName });
+        localStorage.setItem("launcher_cats", JSON.stringify(categories));
+        document.getElementById("newCatName").value = "";
+        renderTabs();
+        renderCatSettings();
+      }
+
+      function deleteCategory(id) {
+        const category = categories.find((c) => c.id === id);
+
+        showActionConfirm(
+          "🗑",
+
+          "카테고리 삭제",
+
+          `"${
+            category?.name || "선택한 카테고리"
+          }" 카테고리를 삭제하시겠습니까?`,
+
+          async () => {
+            categories = categories.filter((c) => c.id !== id);
+
+            localStorage.setItem("launcher_cats", JSON.stringify(categories));
+
+            if (currentTab === id) {
+              currentTab = "all";
+            }
+
+            renderTabs();
+            renderCatSettings();
+          }
+        );
+      }
+
+      function renderCatSettings() {
+        const list = document.getElementById("customCatList");
+        list.innerHTML = "";
+        categories
+          .filter((c) => c.id !== "all")
+          .forEach((c) => {
+            const item = document.createElement("div");
+            item.className = "cat-item";
+            item.innerHTML = `<span>${c.name}</span><button onclick="deleteCategory('${c.id}')" style="background:none; border:none; color:#ff4757; cursor:pointer;">✕</button>`;
+            list.appendChild(item);
+          });
+      }
+
+      function togglePopup(e, type) {
+        e.stopPropagation();
+        const popup = document.getElementById("sysPopup");
+
+        if (activePopupType === type && popup.style.display === "block") {
+          popup.style.display = "none";
+          activePopupType = null;
+          return;
+        }
+
+        activePopupType = type;
+        const targetEl = e.currentTarget;
+        const rect = targetEl.getBoundingClientRect();
+
+        popup.style.left = `${rect.left}px`;
+        popup.style.display = "block";
+
+        renderPopupContent(type);
+      }
+
+      function renderPopupContent(type) {
+        const titleEl = document.getElementById("sysPopupTitle");
+        const listEl = document.getElementById("sysPopupList");
+        if (!listEl) return;
+
+        listEl.innerHTML = "";
+
+        let dataList = [];
+        if (type === "cpu") {
+          titleEl.innerText = "🔥 CPU 점유율 Top 5";
+          dataList = latestSysData?.topCpuList || [];
+        } else if (type === "ram") {
+          titleEl.innerText = "🔥 RAM 사용량 Top 5";
+          dataList = latestSysData?.topRamList || [];
+        } else if (type === "disk") {
+          titleEl.innerText = "💾 디스크 드라이브 목록";
+          dataList = latestSysData?.diskList || [];
+        }
+
+        if (!Array.isArray(dataList) || dataList.length === 0) {
+          listEl.innerHTML =
+            '<div style="color:var(--text-sub); text-align:center; padding:10px;">데이터 수집 중...</div>';
+          return;
+        }
+
+        dataList.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "sys-popup-row";
+
+          if (type === "disk") {
+            const isDanger = item.use >= 80;
+            const valColorStyle = isDanger
+              ? "color: #ff4757; font-weight: bold;"
+              : "color: var(--primary); font-weight: bold;";
+
+            row.innerHTML = `
+                        <span class="name">${item.mount} (${item.used}GB / ${item.size}GB)</span>
+                        <span class="val" style="${valColorStyle}">${item.use}% 사용중</span>
+                    `;
+          } else {
+            row.innerHTML = `<span class="name">${item.name}</span><span class="val">${item.value}</span>`;
+          }
+          listEl.appendChild(row);
+        });
+      }
+
+      function closeSysPopup(event) {
+        const sysPopup = document.getElementById("sysPopup");
+
+        const pcPopup = document.getElementById("pcManagerPopup");
+
+        const powerPopup = document.getElementById("powerPopup");
+
+        if (powerPopup && !powerPopup.contains(event.target)) {
+          powerPopup.style.display = "none";
+        }
+
+        if (sysPopup && !sysPopup.contains(event.target)) {
+          sysPopup.style.display = "none";
+
+          activePopupType = null;
+        }
+
+        if (pcPopup && !pcPopup.contains(event.target)) {
+          pcPopup.style.display = "none";
+        }
+      }
+
+      function togglePcManager(event) {
+        event.stopPropagation();
+
+        const popup = document.getElementById("pcManagerPopup");
+
+        if (popup.style.display === "block") {
+          popup.style.display = "none";
+          return;
+        }
+
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        popup.style.left = `${rect.left}px`;
+
+        popup.style.display = "block";
+      }
+
+      function togglePowerMenu(event) {
+        event.stopPropagation();
+
+        const popup = document.getElementById("powerPopup");
+
+        if (popup.style.display === "block") {
+          popup.style.display = "none";
+
+          return;
+        }
+
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        popup.style.left = `${rect.left}px`;
+
+        popup.style.display = "block";
+      }
+
+      async function browsePath() {
+        if (!window.launcherAPI) return;
+
+        const type = document.getElementById("itemType").value;
+
+        let path =
+          type === "exe"
+            ? await window.launcherAPI.selectFile()
+            : await window.launcherAPI.selectFolder();
+
+        if (!path) return;
+
+        document.getElementById("itemPath").value = path;
+
+        // EXE 선택 시 이름 자동 입력
+        if (type === "exe") {
+          const fileName = path.split("\\").pop();
+
+          const appName = fileName.replace(/\.(exe|lnk)$/i, "");
+
+          const nameInput = document.getElementById("itemName");
+
+          if (!nameInput.value.trim()) {
+            nameInput.value = appName;
+          }
+          if (window.launcherAPI && window.launcherAPI.extractExeIcon) {
+            const iconPath = await window.launcherAPI.extractExeIcon(path);
+
+            if (iconPath) {
+              document.getElementById("itemIcon").value = iconPath;
+            }
+          }
+        }
+      }
+
+      async function browseImageIcon() {
+        if (!window.launcherAPI) return;
+        const imagePath = await window.launcherAPI.selectImage();
+        if (imagePath) document.getElementById("itemIcon").value = imagePath;
+      }
+
+      function selectPresetIcon(icon) {
+        document.getElementById("itemIcon").value = icon;
+      }
+      let searchTimer;
+
+      function filterApps() {
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(() => {
+          renderApps();
+        }, 200);
+      }
+      async function toggleStartup(enabled) {
+        if (!window.launcherAPI) return;
+
+        await window.launcherAPI.setStartup(enabled);
+      }
+
+      async function openTaskManager() {
+        await window.launcherAPI.openTaskManager();
+      }
+
+      async function openDownloadsFolder() {
+        await window.launcherAPI.openDownloadsFolder();
+      }
+
+      async function openRecycleBin() {
+        await window.launcherAPI.openRecycleBin();
+      }
+
+      function emptyRecycleBin() {
+        showActionConfirm(
+          "🗑",
+
+          "휴지통 비우기",
+
+          "휴지통을 완전히 비우시겠습니까?",
+
+          async () => {
+            const result = await window.launcherAPI.emptyRecycleBin();
+
+            if (result) {
+              showInfoModal(
+                "✅",
+
+                "휴지통 비우기",
+
+                "휴지통 비우기가 완료되었습니다."
+              );
+            } else {
+              showInfoModal(
+                "❌",
+
+                "휴지통 비우기 실패",
+
+                "휴지통 비우기 중 오류가 발생했습니다."
+              );
+            }
+          }
+        );
+      }
+
+      async function lockWindows() {
+        showActionConfirm(
+          "🔒",
+          "화면 잠금",
+          "화면을 잠그시겠습니까?",
+          async () => {
+            await window.launcherAPI.lockWindows();
+          }
+        );
+      }
+
+      async function sleepWindows() {
+        showActionConfirm(
+          "🌙",
+          "절전 모드",
+          "컴퓨터를 절전 모드로 전환하시겠습니까?",
+          async () => {
+            await window.launcherAPI.sleepWindows();
+          }
+        );
+      }
+
+      async function restartWindows() {
+        showActionConfirm(
+          "🔄",
+          "컴퓨터 재시작",
+          "정말 컴퓨터를 재시작하시겠습니까?",
+          async () => {
+            await window.launcherAPI.restartWindows();
+          }
+        );
+      }
+
+      function shutdownWindows() {
+        showActionConfirm(
+          "⛔",
+
+          "컴퓨터 종료",
+
+          "정말 컴퓨터를 종료하시겠습니까?",
+
+          async () => {
+            await window.launcherAPI.shutdownWindows();
+          }
+        );
+      }
+
+      function toggleAutoMin(val) {
+        autoMinimize = val;
+        localStorage.setItem("launcher_automin", val);
+      }
+      function changeTheme(theme) {
+        document.body.className = theme;
+        localStorage.setItem("launcher_theme", theme);
+      }
+      function loadTheme() {
+        document.body.className = localStorage.getItem("launcher_theme") || "";
+      }
+
+      function toggleSidePanel() {
+        const panel = document.getElementById("sidePanel");
+
+        sidePanelCollapsed = !sidePanelCollapsed;
+
+        panel.classList.toggle("collapsed");
+      }
+
+      function openSettingsModal() {
+        document.getElementById("settingsModal").style.display = "flex";
+      }
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      function showActionConfirm(icon, title, desc, handler) {
+        actionConfirmHandler = handler;
+        document.getElementById("actionConfirmIcon").innerText = icon;
+        document.getElementById("actionConfirmTitle").innerText = title;
+        document.getElementById("actionConfirmDesc").innerHTML = desc;
+        document.getElementById("actionConfirmModal").style.display = "flex";
+      }
+
+      function showInfoModal(icon, title, desc) {
+        document.getElementById("infoModalIcon").innerText = icon;
+        document.getElementById("infoModalTitle").innerText = title;
+        document.getElementById("infoModalDesc").innerHTML = desc;
+        document.getElementById("infoModal").style.display = "flex";
+      }
+
+      function closeInfoModal() {
+        document.getElementById("infoModal").style.display = "none";
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.classList.add("show");
+        clearTimeout(toast.hideTimer);
+        toast.hideTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      function closeActionConfirm() {
+        actionConfirmHandler = null;
+        document.getElementById("actionConfirmModal").style.display = "none";
+      }
+
+      async function executeActionConfirm() {
+        if (actionConfirmHandler) {
+          await actionConfirmHandler();
+        }
+
+        closeActionConfirm();
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+
+        const modals = [
+          "infoModal",
+
+          "actionConfirmModal",
+
+          "quitConfirmModal",
+
+          "settingsModal",
+
+          "addModal",
+        ];
+
+        for (const modalId of modals) {
+          const modal = document.getElementById(modalId);
+
+          if (modal && modal.style.display === "flex") {
+            if (modalId === "infoModal") {
+              closeInfoModal();
+            } else if (modalId === "actionConfirmModal") {
+              closeActionConfirm();
+            } else if (modalId === "quitConfirmModal") {
+              handleQuitOption("cancel");
+            } else {
+              closeModal(modalId);
+            }
+
+            return;
+          }
+        }
+      });
+      setInterval(() => {
+        document.getElementById("clock").innerText =
+          new Date().toLocaleTimeString();
+      }, 1000);
+
+      init();
+    </script>
+  </body>
+</html>
