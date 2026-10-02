@@ -37,6 +37,13 @@
           ]
         }
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "chokwangmin",
+        "repo": "PC-LAUNCHER"
+      }
+    ]
   }
 }

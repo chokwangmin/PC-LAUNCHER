@@ -2,12 +2,15 @@ name: Build Launcher
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 jobs:
   build:
     runs-on: windows-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: Checkout
@@ -21,11 +24,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build App
-        run: npx electron-builder --dir
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: LauncherBuild
-          path: dist/**
+      - name: Build
+        run: npm run build
