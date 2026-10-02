@@ -15,6 +15,8 @@ const path = require("path");
 const os = require("os");
 const { exec } = require("child_process");
 const fs = require("fs");
+const { autoUpdater } =
+    require("electron-updater");
 
 let si = null;
 try {
@@ -209,6 +211,7 @@ app.whenReady().then(() => {
     loadConfig();
     createWindow();
     createTray();
+    autoUpdater.checkForUpdates();
 
     globalShortcut.register("Alt+Space", () => {
         toggleWindow();
@@ -646,4 +649,36 @@ ipcMain.handle("get-sys-info", async () => {
         topRamList: [],
         diskList: [],
     };
+
 });
+
+autoUpdater.on(
+    "update-available",
+    (info) => {
+
+        if (mainWindow) {
+
+            mainWindow.webContents.send(
+                "update-available",
+                info.version
+            );
+
+        }
+
+    }
+);
+
+autoUpdater.on(
+    "update-downloaded",
+    () => {
+
+        if (mainWindow) {
+
+            mainWindow.webContents.send(
+                "update-downloaded"
+            );
+
+        }
+
+    }
+);

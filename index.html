@@ -1604,6 +1604,32 @@
         document.getElementById("sidePanel").classList.add("collapsed");
 
         document.getElementById("sideToggleBtn").innerText = "📋 패널 열기";
+
+        window.launcherAPI?.onUpdateAvailable((event, version) => {
+          showActionConfirm(
+            "⬆️",
+
+            "업데이트 발견",
+
+            `새 버전 ${version} 이 있습니다.<br><br>업데이트를 진행하시겠습니까?`,
+
+            async () => {}
+          );
+        });
+
+        window.launcherAPI?.onUpdateDownloaded(() => {
+          showActionConfirm(
+            "✅",
+
+            "업데이트 준비 완료",
+
+            "업데이트 다운로드가 완료되었습니다.<br><br>재시작 후 적용됩니다.",
+
+            async () => {
+              location.reload();
+            }
+          );
+        });
       }
 
       function toggleStickerBtn() {

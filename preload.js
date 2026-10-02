@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld("launcherAPI", {
     openUrl: (url) => ipcRenderer.invoke("open-url", url),
     sendNotification: (data) => ipcRenderer.invoke("send-notification", data),
     getSysInfo: () => ipcRenderer.invoke("get-sys-info"),
-    extractExeIcon: (exePath) => ipcRenderer.invoke('extract-exe-icon', exePath),
+    extractExeIcon: (exePath) => ipcRenderer.invoke("extract-exe-icon", exePath),
     openTaskManager: () => ipcRenderer.invoke("open-task-manager"),
     openDownloadsFolder: () => ipcRenderer.invoke("open-downloads-folder"),
     openRecycleBin: () => ipcRenderer.invoke("open-recycle-bin"),
@@ -41,4 +41,7 @@ contextBridge.exposeInMainWorld("launcherAPI", {
     onSyncConfigUI: (callback) => ipcRenderer.on("sync-config-ui", callback),
     minimizeToTray: () => ipcRenderer.send("app-minimize-to-tray"),
     quitForce: () => ipcRenderer.send("app-quit-force"),
+
+    onUpdateAvailable: (callback) => ipcRenderer.on("update-available", callback),
+    onUpdateDownloaded: (callback) => ipcRenderer.on("update-downloaded", callback),
 });
