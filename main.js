@@ -704,3 +704,19 @@ ipcMain.handle(
 
     }
 );
+
+autoUpdater.on("checking-for-update", () => {
+    console.log("업데이트 확인 시작");
+});
+
+autoUpdater.on("update-available", (info) => {
+    console.log("업데이트 발견:", info.version);
+});
+
+autoUpdater.on("update-not-available", () => {
+    console.log("업데이트 없음");
+});
+
+autoUpdater.on("error", (err) => {
+    console.error("업데이트 오류:", err);
+});
