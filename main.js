@@ -682,3 +682,25 @@ autoUpdater.on(
 
     }
 );
+
+ipcMain.handle(
+    "download-update",
+    async () => {
+
+        autoUpdater.downloadUpdate();
+
+        return true;
+
+    }
+);
+
+ipcMain.handle(
+    "install-update",
+    async () => {
+
+        autoUpdater.quitAndInstall();
+
+        return true;
+
+    }
+);

@@ -44,4 +44,13 @@ contextBridge.exposeInMainWorld("launcherAPI", {
 
     onUpdateAvailable: (callback) => ipcRenderer.on("update-available", callback),
     onUpdateDownloaded: (callback) => ipcRenderer.on("update-downloaded", callback),
+    downloadUpdate: () =>
+        ipcRenderer.invoke(
+            "download-update"
+        ),
+
+    installUpdate: () =>
+        ipcRenderer.invoke(
+            "install-update"
+        ),
 });
