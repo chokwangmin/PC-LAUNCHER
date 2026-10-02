@@ -59,4 +59,10 @@ contextBridge.exposeInMainWorld("launcherAPI", {
             "update-log",
             callback
         ),
+    onUpdateProgress: (callback) =>
+        ipcRenderer.on(
+            "update-progress",
+            callback
+        ),
+
 });

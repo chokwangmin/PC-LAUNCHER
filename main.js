@@ -698,12 +698,18 @@ ipcMain.handle(
     "install-update",
     async () => {
 
-        autoUpdater.quitAndInstall();
+        isQuitting = true;
+
+        autoUpdater.quitAndInstall(
+            true,
+            true
+        );
 
         return true;
 
     }
 );
+
 
 autoUpdater.on("checking-for-update", () => {
     console.log("업데이트 확인 시작");
@@ -752,10 +758,24 @@ autoUpdater.on(
     "download-progress",
     (progress) => {
 
-        mainWindow.webContents.send(
-            "update-progress",
-            progress.percent
-        );
+        const percent =
+            Math.round(
+                progress.percent
+            );
+
+        if (mainWindow) {
+
+            mainWindow.webContents.send(
+                "update-progress",
+                percent
+            );
+
+            mainWindow.setProgressBar(
+                percent / 100
+            );
+
+        }
 
     }
 );
+

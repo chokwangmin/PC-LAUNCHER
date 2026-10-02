@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>PC Ultimate Launcher Pro v1.3.3</title>
+    <title>PC Ultimate Launcher Pro v1.3.4</title>
     <style>
       :root {
         --primary: #00adb5;
@@ -1479,6 +1479,45 @@
         </div>
       </div>
     </div>
+    <div class="modal" id="updateProgressModal">
+      <div class="quit-modal-content">
+        <div class="quit-modal-icon">📦</div>
+
+        <div class="quit-modal-title">업데이트 다운로드 중</div>
+
+        <div
+          id="updatePercentText"
+          style="
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+          "
+        >
+          0%
+        </div>
+
+        <div
+          style="
+            width: 100%;
+            height: 12px;
+            background: #121318;
+            border-radius: 999px;
+            overflow: hidden;
+          "
+        >
+          <div
+            id="updateProgressBar"
+            style="
+              width: 0%;
+              height: 100%;
+              background: var(--primary);
+              transition: 0.2s;
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
 
     <div id="toast" class="toast"></div>
 
@@ -1491,6 +1530,7 @@
       let draggedIndex = null;
       let actionConfirmHandler = null;
       let sidePanelCollapsed = true;
+      let updateDownloadPercent = 0;
 
       const defaultCategories = [
         { id: "all", name: "전체" },
@@ -1611,6 +1651,9 @@
             "업데이트 발견",
             `새 버전 ${version} 이 있습니다.<br><br>업데이트를 진행하시겠습니까?`,
             async () => {
+              document.getElementById("updateProgressModal").style.display =
+                "flex";
+
               await window.launcherAPI.downloadUpdate();
             }
           );
@@ -1625,6 +1668,14 @@
               await window.launcherAPI.installUpdate();
             }
           );
+        });
+
+        window.launcherAPI?.onUpdateProgress((event, percent) => {
+          document.getElementById("updatePercentText").innerText =
+            percent + "%";
+
+          document.getElementById("updateProgressBar").style.width =
+            percent + "%";
         });
 
         window.launcherAPI?.onUpdateLog((event, msg) => {
