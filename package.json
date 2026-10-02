@@ -1,6 +1,6 @@
 {
-  "name": "PC-Ultimate",
-  "version": "1.2.0",
+  "name": "pc-ultimate-launcher",
+  "version": "1.2.3",
   "author": "clride",
   "description": "PC Ultimate Launcher Pro",
   "main": "main.js",
@@ -9,7 +9,6 @@
     "build": "electron-builder"
   },
   "dependencies": {
-    "electron-updater": "^6.8.9",
     "systeminformation": "^5.21.0"
   },
   "devDependencies": {
@@ -22,29 +21,21 @@
     "directories": {
       "output": "dist"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "chokwangmin",
+      "repo": "PC-LAUNCHER"
+    },
     "win": {
       "icon": "assets/icon.ico",
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
+        "nsis",
+        "portable"
       ]
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "chokwangmin",
-        "repo": "PC-LAUNCHER"
-      }
-    ]
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

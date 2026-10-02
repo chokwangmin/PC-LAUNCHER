@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -24,5 +27,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build
+      - name: Build App
         run: npm run build
