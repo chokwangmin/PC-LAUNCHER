@@ -203,7 +203,7 @@ function createTray() {
         return;
     }
 
-    tray.setToolTip("PC Room Ultimate Launcher Pro v1.1.0");
+    tray.setToolTip("PC Room Ultimate Launcher Pro v1.3.7");
     updateTrayContextMenu();
     tray.on("click", toggleWindow);
     tray.on("double-click", toggleWindow);
