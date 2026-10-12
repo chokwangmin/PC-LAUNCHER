@@ -13,10 +13,21 @@ const {
 } = require("electron");
 const path = require("path");
 const os = require("os");
-const { exec } = require("child_process");
+const {
+    exec,
+    execFile,
+    execFileSync
+} = require("child_process");
 const fs = require("fs");
 const { autoUpdater } =
     require("electron-updater");
+
+const csvPath =
+    path.join(
+        app.getPath("temp"),
+        "monitors.csv"
+    );
+
 
 let si = null;
 try {
@@ -30,6 +41,7 @@ try {
 let mainWindow;
 let tray = null;
 let isQuitting = false;
+let displayCache = [];
 
 const configPath = path.join(app.getPath("userData"), "config.json");
 let config = {
@@ -207,11 +219,18 @@ function toggleWindow() {
     }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     loadConfig();
     createWindow();
     createTray();
     autoUpdater.checkForUpdates();
+    if (si) {
+
+        displayCache =
+            (await si.graphics())
+                .displays;
+
+    }
 
     globalShortcut.register("Alt+Space", () => {
         toggleWindow();
@@ -227,6 +246,7 @@ app.whenReady().then(() => {
             mainWindow.webContents.toggleDevTools();
         }
     });
+
 });
 
 app.on("will-quit", () => {
@@ -293,6 +313,8 @@ ipcMain.on("set-sticker-mode", (event, isSticker) => {
     }
 });
 
+
+
 ipcMain.handle("get-app-config", () => {
     const displays = screen.getAllDisplays().map((d, index) => ({
         index,
@@ -326,6 +348,221 @@ ipcMain.handle("extract-exe-icon", async (event, exePath) => {
         return null;
     }
 });
+
+ipcMain.handle(
+    "toggle-monitor",
+    async (
+        event,
+        {
+            displayNumber,
+            enable
+        }
+    ) => {
+
+        try {
+
+            const tool =
+                path.join(
+                    __dirname,
+                    "assets",
+                    "tools",
+                    "MultiMonitorTool.exe"
+                );
+
+            const action =
+                enable
+                    ? "/enable"
+                    : "/disable";
+
+            const displayName =
+                `\\\\.\\DISPLAY${displayNumber}`;
+
+            const command =
+                `"${tool}" ${action} "${displayName}"`;
+
+            console.log(
+                "[MONITOR]",
+                command
+            );
+
+            execFile(
+
+                tool,
+
+                [
+                    action,
+                    displayName
+                ],
+
+                (
+                    error,
+                    stdout,
+                    stderr
+                ) => {
+
+                    console.log(
+                        "[MONITOR STDOUT]",
+                        stdout
+                    );
+
+                    console.log(
+                        "[MONITOR STDERR]",
+                        stderr
+                    );
+
+                    if (error) {
+
+                        console.error(
+                            "[MONITOR ERROR]",
+                            error
+                        );
+
+                    }
+
+                }
+
+            );
+
+            return true;
+        } catch (err) {
+
+            console.error(err);
+
+            return false;
+
+        }
+
+    }
+);
+
+ipcMain.handle(
+    "get-displays",
+    async () => {
+
+        try {
+
+            const tool =
+                path.join(
+                    __dirname,
+                    "assets",
+                    "tools",
+                    "MultiMonitorTool.exe"
+                );
+
+            execFileSync(
+                tool,
+                [
+                    "/scomma",
+                    csvPath
+                ]
+            );
+
+            const csv =
+                fs.readFileSync(
+                    csvPath,
+                    "utf8"
+                );
+
+            const lines =
+                csv
+                    .split(/\r?\n/)
+                    .filter(Boolean);
+
+            const displays =
+                displayCache.map(
+                    (
+                        display,
+                        index
+                    ) => ({
+
+                        index,
+
+                        model:
+                            display.model?.trim()
+                                ? display.model
+                                : display.deviceName ||
+                                `모니터 ${index + 1}`,
+
+                        main:
+                            !!display.main,
+
+                        currentResX:
+                            display.currentResX,
+
+                        currentResY:
+                            display.currentResY,
+
+                        enabled:
+                            lines.some(
+                                line =>
+                                    line.includes(
+                                        `DISPLAY${index + 1}`
+                                    ) &&
+                                    line.includes(
+                                        "Yes"
+                                    )
+                            )
+
+                    })
+                );
+
+            return displays;
+
+        } catch (err) {
+
+            console.error(err);
+
+            return [];
+
+        }
+
+    }
+);
+
+
+
+ipcMain.handle(
+    "apply-monitor-mode",
+    async (
+        event,
+        mode
+    ) => {
+
+        switch (
+        mode
+        ) {
+
+            case "normal":
+
+                exec(
+                    "DisplaySwitch.exe /extend"
+                );
+
+                break;
+
+            case "dev":
+
+                exec(
+                    "DisplaySwitch.exe /extend"
+                );
+
+                break;
+
+            case "game":
+
+                exec(
+                    "DisplaySwitch.exe /internal"
+                );
+
+                break;
+
+        }
+
+        return true;
+
+    }
+);
+
 ipcMain.handle("set-startup", async (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
     return true;
@@ -349,11 +586,11 @@ ipcMain.handle(
     "run-exe-custom",
     async (event, { exePath, args, runAsAdmin, autoMinimize, appId }) => {
         if (!exePath) return false;
-        const formattedArgs = args ? ` ${args}` : "";
-        let command = `start "" "${exePath}"${formattedArgs}`;
+        const formattedArgs = args ? ` ${args} ` : "";
+        let command = `start "" "${exePath}"${formattedArgs} `;
 
         if (runAsAdmin) {
-            command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${args || ""
+            command = `powershell - Command "Start-Process '${exePath}' -ArgumentList '${args || ""
                 }' -Verb RunAs"`;
         }
 
@@ -668,31 +905,8 @@ autoUpdater.on(
     }
 );
 
-autoUpdater.on(
-    "download-progress",
-    (progress) => {
 
-        const percent =
-            Math.round(
-                progress.percent
-            );
 
-        if (mainWindow) {
-
-            mainWindow.webContents.send(
-                "update-progress",
-                percent
-            );
-
-            mainWindow.setProgressBar(
-                percent / 100
-            );
-
-        }
-
-    }
-);
-``
 
 ipcMain.handle(
     "download-update",
@@ -732,21 +946,13 @@ ipcMain.handle(
 );
 
 
-autoUpdater.on("checking-for-update", () => {
-    console.log("업데이트 확인 시작");
-});
+
 
 autoUpdater.on("update-available", (info) => {
-    console.log("업데이트 발견:", info.version);
+    console.log("업데이트가 있습니다.:", info.version);
 });
 
-autoUpdater.on("update-not-available", () => {
-    console.log("업데이트 없음");
-});
 
-autoUpdater.on("error", (err) => {
-    console.error("업데이트 오류:", err);
-});
 
 autoUpdater.on("checking-for-update", () => {
     if (mainWindow) {

@@ -64,6 +64,30 @@ contextBridge.exposeInMainWorld("launcherAPI", {
             "update-progress",
             callback
         ),
+    getDisplays: () =>
+        ipcRenderer.invoke(
+            "get-displays"
+        ),
+
+    applyMonitorMode: (
+        mode
+    ) =>
+        ipcRenderer.invoke(
+            "apply-monitor-mode",
+            mode
+        ),
+
+    toggleMonitor: (
+        displayNumber,
+        enable
+    ) =>
+        ipcRenderer.invoke(
+            "toggle-monitor",
+            {
+                displayNumber,
+                enable
+            }
+        ),
 
 
 

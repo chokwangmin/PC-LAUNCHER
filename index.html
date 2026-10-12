@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>PC Ultimate Launcher Pro v1.3.5</title>
+    <title>PC Ultimate Launcher Pro v1.3.7</title>
     <style>
       :root {
         --primary: #00adb5;
@@ -848,6 +848,14 @@
 
         overflow: hidden;
       }
+
+      .ram-clean-btn:disabled {
+        opacity: 0.4;
+
+        cursor: not-allowed;
+
+        pointer-events: none;
+      }
     </style>
   </head>
 
@@ -856,7 +864,7 @@
     <div id="mainAppWrapper">
       <header>
         <div class="logo">
-          <span>🎮 LAUNCHER PRO v1.1</span>
+          <span>LAUNCHER PRO v1.3.7</span>
           <span
             style="
               font-size: 10px;
@@ -976,16 +984,15 @@
               <div class="gauge-fill" id="diskBar"></div>
             </div>
           </span>
-          <span
-            >네트워크: ⬇️ <b id="downText">0</b>MB/s ⬆
-            <b id="upText">0</b>MB/s</span
-          >
+
           <span
             >Ping:
             <b id="pingText" style="color: var(--primary)">-- ms</b></span
           >
         </div>
-
+        <button class="ram-clean-btn" onclick="showMonitorConfig(event)">
+          🖥 모니터 관리
+        </button>
         <button class="ram-clean-btn" onclick="togglePcManager(event)">
           🛠 PC관리
         </button>
@@ -1102,6 +1109,35 @@
               <span class="name">⛔ 컴퓨터 종료</span>
               <span class="val">▶</span>
             </div> -->
+          </div>
+        </div>
+        <div
+          class="sys-popup"
+          id="monitorPopup"
+          onclick="event.stopPropagation();"
+        >
+          <div class="sys-popup-title">🖥 모니터 구성</div>
+
+          <div id="monitorList" class="sys-popup-list"></div>
+
+          <div style="margin-top: 10px">
+            <div class="sys-popup-row" onclick="applyMonitorMode('normal')">
+              <span class="name"> 💼 일반 모드 </span>
+
+              <span class="val"> 1+2 </span>
+            </div>
+
+            <div class="sys-popup-row" onclick="applyMonitorMode('dev')">
+              <span class="name"> 👨‍💻 개발 모드 </span>
+
+              <span class="val"> 1+2+3 </span>
+            </div>
+
+            <div class="sys-popup-row" onclick="applyMonitorMode('game')">
+              <span class="name"> 🎮 게임 모드 </span>
+
+              <span class="val"> 1만 </span>
+            </div>
           </div>
         </div>
       </footer>
@@ -1526,7 +1562,8 @@
       let actionConfirmHandler = null;
       let sidePanelCollapsed = true;
       let updateDownloadPercent = 0;
-
+      let disabledDisplays = new Set();
+      let cachedDisplays = [];
       const defaultCategories = [
         { id: "all", name: "전체" },
         { id: "game", name: "게임" },
@@ -1678,6 +1715,7 @@
         window.launcherAPI?.onUpdateLog((event, msg) => {
           showInfoModal("🔧", "업데이트 로그", msg);
         });
+        cachedDisplays = await window.launcherAPI.getDisplays();
       }
 
       function toggleStickerBtn() {
@@ -2181,9 +2219,6 @@
             (info?.diskUsage ?? 0) + "%";
           document.getElementById("diskBar").style.width =
             (info?.diskUsage ?? 0) + "%";
-          document.getElementById("downText").innerText =
-            info?.downSpeed ?? "0.0";
-          document.getElementById("upText").innerText = info?.upSpeed ?? "0.0";
           document.getElementById("pingText").innerText =
             ping > 0 ? `${ping} ms` : "보통";
 
@@ -2522,6 +2557,8 @@
 
         const powerPopup = document.getElementById("powerPopup");
 
+        const monitorPopup = document.getElementById("monitorPopup");
+
         if (powerPopup && !powerPopup.contains(event.target)) {
           powerPopup.style.display = "none";
         }
@@ -2534,6 +2571,10 @@
 
         if (pcPopup && !pcPopup.contains(event.target)) {
           pcPopup.style.display = "none";
+        }
+
+        if (monitorPopup && !monitorPopup.contains(event.target)) {
+          monitorPopup.style.display = "none";
         }
       }
 
@@ -2783,12 +2824,139 @@
         document.getElementById("actionConfirmModal").style.display = "none";
       }
 
+      async function toggleMonitor(displayNumber, enable) {
+        const result = await window.launcherAPI.toggleMonitor(
+          displayNumber,
+          enable
+        );
+
+        if (!result) return;
+
+        // if (enable) {
+        //   disabledDisplays.delete(displayNumber);
+        // } else {
+        //   disabledDisplays.add(displayNumber);
+        // }
+
+        setTimeout(async () => {
+          cachedDisplays = await window.launcherAPI.getDisplays();
+
+          await showMonitorConfig();
+        }, 300);
+      }
+
       async function executeActionConfirm() {
         if (actionConfirmHandler) {
           await actionConfirmHandler();
         }
 
         closeActionConfirm();
+      }
+
+      async function showMonitorConfig() {
+        if (event) {
+          event.stopPropagation();
+        }
+
+        const popup = document.getElementById("monitorPopup");
+
+        if (popup.style.display === "block") {
+          popup.style.display = "none";
+
+          return;
+        }
+
+        cachedDisplays = await window.launcherAPI.getDisplays();
+
+        const displays = cachedDisplays;
+
+        let html = "";
+
+        displays.forEach((display, index) => {
+          const monitorName = display.model?.trim()
+            ? display.model
+            : display.deviceName || `모니터 ${index + 1}`;
+
+          html += `
+
+<div class="sys-popup-row">
+
+    <span class="name">
+
+      ${display.main ? "👑" : display.enabled ? "🟢" : "⚫"}
+
+        ${monitorName}
+
+        <div style="
+            font-size:10px;
+            color:var(--text-sub);
+            margin-top:2px;
+        ">
+
+            ${
+              display.main
+                ? `주 모니터 (${index + 1})`
+                : `보조 모니터 (${index + 1})`
+            }
+
+        </div>
+
+    </span>
+
+    <span class="val">
+
+        ${display.currentResX}
+        x
+        ${display.currentResY}
+
+    </span>
+
+</div>
+
+<div style="
+    display:flex;
+    gap:5px;
+    margin:5px 0 10px 0;
+">
+
+<button
+  class="ram-clean-btn"
+  ${display.enabled ? "disabled" : ""}
+  onclick="event.stopPropagation(); toggleMonitor(${index + 1}, true)">
+
+  🟢 ON
+
+</button>
+
+<button
+  class="ram-clean-btn power-btn"
+  ${display.enabled ? "" : "disabled"}
+  onclick="event.stopPropagation(); toggleMonitor(${index + 1}, false)">
+
+  🔴 OFF
+
+</button>
+
+</div>
+
+`;
+        });
+
+        document.getElementById("monitorList").innerHTML = html;
+
+        popup.style.display = "block";
+      }
+
+      async function applyMonitorMode(mode) {
+        await window.launcherAPI.applyMonitorMode(mode);
+
+        showInfoModal(
+          "✅",
+
+          "적용 완료",
+
+          "모니터 설정이 변경되었습니다."
+        );
       }
 
       document.addEventListener("keydown", (e) => {
