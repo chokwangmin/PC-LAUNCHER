@@ -982,6 +982,24 @@ autoUpdater.on("error", (err) => {
 });
 
 autoUpdater.on(
+    "update-downloaded",
+    () => {
+
+        console.log(
+            "[UPDATER] 다운로드 완료"
+        );
+
+        if (mainWindow) {
+
+            mainWindow.webContents.send(
+                "update-downloaded"
+            );
+
+        }
+
+    }
+);
+autoUpdater.on(
     "download-progress",
     (progress) => {
 

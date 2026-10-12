@@ -1692,16 +1692,39 @@
         });
 
         window.launcherAPI?.onUpdateDownloaded(() => {
-          document.getElementById("updateProgressModal").style.display = "none";
+          document.getElementById("updateProgressBar").style.width = "100%";
 
-          showActionConfirm(
-            "✅",
-            "업데이트 준비 완료",
-            "업데이트 다운로드가 완료되었습니다.<br><br>재시작 후 적용됩니다.",
-            async () => {
-              await window.launcherAPI.installUpdate();
+          document.getElementById("updatePercentText").innerText =
+            "설치 준비 중...";
+
+          let installProgress = 0;
+
+          const timer = setInterval(() => {
+            installProgress += 10;
+
+            document.getElementById(
+              "updatePercentText"
+            ).innerText = `설치 준비 중... ${installProgress}%`;
+
+            if (installProgress >= 100) {
+              clearInterval(timer);
+
+              document.getElementById("updateProgressModal").style.display =
+                "none";
+
+              showActionConfirm(
+                "✅",
+
+                "업데이트 준비 완료",
+
+                "최신 버전 설치 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
+
+                async () => {
+                  await window.launcherAPI.installUpdate();
+                }
+              );
             }
-          );
+          }, 100);
         });
 
         window.launcherAPI?.onUpdateProgress((event, percent) => {
