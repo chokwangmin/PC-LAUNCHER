@@ -63,14 +63,19 @@ let config = {
     isSticker: false,
 };
 
+// function isPortableVersion() {
+
+//     return process.execPath
+//         .toLowerCase()
+//         .includes(
+//             "portable"
+//         );
+
+// }
+
 function isPortableVersion() {
 
-    return process.execPath
-        .toLowerCase()
-        .includes(
-            "portable"
-        );
-
+    return true;
 }
 
 ipcMain.handle(
@@ -90,7 +95,10 @@ ipcMain.handle(
                     __dirname,
                     "updater.js"
                 );
-
+            console.log(
+                "[UPDATER FILE]",
+                updater
+            );
             exec(
 
                 `node "${updater}" "${currentExe}" "${downloadedExe}"`
@@ -119,6 +127,7 @@ ipcMain.handle(
         return new Promise(
             (resolve, reject) => {
 
+
                 const savePath =
                     path.join(
                         app.getPath("temp"),
@@ -129,6 +138,16 @@ ipcMain.handle(
                     fs.createWriteStream(
                         savePath
                     );
+
+                console.log(
+                    "[DOWNLOAD URL]",
+                    url
+                );
+
+                console.log(
+                    "[DOWNLOAD SAVE PATH]",
+                    savePath
+                );
 
                 https.get(
                     url,
@@ -163,6 +182,7 @@ ipcMain.handle(
         );
 
     }
+
 );
 
 ipcMain.handle(
@@ -752,6 +772,7 @@ ipcMain.handle(
     "get-portable-asset",
     async () => {
 
+
         try {
 
             const apiUrl =
@@ -769,7 +790,10 @@ ipcMain.handle(
                         asset.name.endsWith(".exe") &&
                         !asset.name.includes("Setup")
                 );
-
+            console.log(
+                "[PORTABLE ASSET]",
+                portable
+            );
             return portable
                 ? {
 
@@ -1244,6 +1268,13 @@ autoUpdater.on(
 autoUpdater.on(
     "download-progress",
     (progress) => {
+        if (percent => 99) {
+
+            console.log(
+                "[PROGRESS 100]"
+            );
+
+        }
 
         const percent =
             Math.round(

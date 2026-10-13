@@ -1692,6 +1692,7 @@
         });
 
         window.launcherAPI?.onUpdateDownloaded(() => {
+          alert("onUpdateDownloaded");
           document.getElementById("updateProgressBar").style.width = "100%";
 
           document.getElementById("updatePercentText").innerText =
@@ -1720,16 +1721,19 @@
                 "업데이트 파일 준비가 완료되었습니다.<br><br>지금 적용하시겠습니까?",
 
                 async () => {
+                  alert("설치 버튼 클릭됨");
                   const result = await window.launcherAPI.installUpdate();
-
+                  alert(JSON.stringify(result));
+                  console.log("[PORTABLE] start");
                   if (result?.portable) {
                     const currentExe = await window.launcherAPI.getCurrentExe();
 
                     const asset = await window.launcherAPI.getPortableAsset();
-
+                    console.log("[PORTABLE] asset", asset);
                     const downloadedExe =
                       await window.launcherAPI.downloadPortableFile(asset.url);
-
+                    console.log("[PORTABLE] downloaded", downloadedExe);
+                    console.log("[PORTABLE] run updater");
                     await window.launcherAPI.runPortableUpdater(
                       currentExe,
                       downloadedExe
