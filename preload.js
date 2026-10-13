@@ -89,6 +89,45 @@ contextBridge.exposeInMainWorld("launcherAPI", {
             }
         ),
 
+    runPortableUpdater: (
+        currentExe,
+        downloadedExe
+    ) =>
+        ipcRenderer.invoke(
+            "run-portable-updater",
+            {
+                currentExe,
+                downloadedExe
+            }
+        ),
+    getCurrentExe: () =>
+        ipcRenderer.invoke(
+            "get-current-exe"
+        ),
+
+    downloadPortableUpdate:
+        (url) =>
+            ipcRenderer.invoke(
+                "download-portable-update",
+                url
+            ),
+    getPortableUpdateUrl: () =>
+        ipcRenderer.invoke(
+            "get-portable-update-url"
+        ),
+
+    getPortableAsset: () =>
+        ipcRenderer.invoke(
+            "get-portable-asset"
+        ),
+
+    downloadPortableFile:
+        (url) =>
+            ipcRenderer.invoke(
+                "download-portable-file",
+                url
+            ),
+
 
 
 });

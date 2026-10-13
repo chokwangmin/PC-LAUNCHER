@@ -864,7 +864,7 @@
     <div id="mainAppWrapper">
       <header>
         <div class="logo">
-          <span>LAUNCHER PRO v1.4.0</span>
+          <span>LAUNCHER PRO v1.4.1</span>
           <span
             style="
               font-size: 10px;
@@ -1700,7 +1700,7 @@
           let installProgress = 0;
 
           const timer = setInterval(() => {
-            installProgress += 10;
+            installProgress += 5;
 
             document.getElementById(
               "updatePercentText"
@@ -1717,14 +1717,30 @@
 
                 "업데이트 준비 완료",
 
-                "최신 버전 설치 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
+                "업데이트 파일 준비가 완료되었습니다.<br><br>지금 적용하시겠습니까?",
 
                 async () => {
-                  await window.launcherAPI.installUpdate();
+                  const result = await window.launcherAPI.installUpdate();
+
+                  if (result?.portable) {
+                    const currentExe = await window.launcherAPI.getCurrentExe();
+
+                    const asset = await window.launcherAPI.getPortableAsset();
+
+                    const downloadedExe =
+                      await window.launcherAPI.downloadPortableFile(asset.url);
+
+                    await window.launcherAPI.runPortableUpdater(
+                      currentExe,
+                      downloadedExe
+                    );
+
+                    return;
+                  }
                 }
               );
             }
-          }, 100);
+          }, 80);
         });
 
         window.launcherAPI?.onUpdateProgress((event, percent) => {
@@ -2876,8 +2892,8 @@
         closeActionConfirm();
       }
 
-      async function showMonitorConfig() {
-        if (event) {
+      async function showMonitorConfig(event) {
+        if (event && typeof event.stopPropagation === "function") {
           event.stopPropagation();
         }
 

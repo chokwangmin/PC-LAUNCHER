@@ -37,7 +37,7 @@ try {
         "systeminformation 모듈이 설치되어 있지 않아 기본 os 모듈로 동작합니다."
     );
 }
-
+const https = require("https");
 let mainWindow;
 let tray = null;
 let isQuitting = false;
@@ -62,6 +62,181 @@ let config = {
 
     isSticker: false,
 };
+
+function isPortableVersion() {
+
+    return process.execPath
+        .toLowerCase()
+        .includes(
+            "portable"
+        );
+
+}
+
+ipcMain.handle(
+    "run-portable-updater",
+    async (
+        event,
+        {
+            currentExe,
+            downloadedExe
+        }
+    ) => {
+
+        try {
+
+            const updater =
+                path.join(
+                    __dirname,
+                    "updater.js"
+                );
+
+            exec(
+
+                `node "${updater}" "${currentExe}" "${downloadedExe}"`
+
+            );
+
+            app.quit();
+
+            return true;
+
+        } catch (err) {
+
+            console.error(err);
+
+            return false;
+
+        }
+
+    }
+);
+
+ipcMain.handle(
+    "download-portable-file",
+    async (event, url) => {
+
+        return new Promise(
+            (resolve, reject) => {
+
+                const savePath =
+                    path.join(
+                        app.getPath("temp"),
+                        "launcher-update.exe"
+                    );
+
+                const file =
+                    fs.createWriteStream(
+                        savePath
+                    );
+
+                https.get(
+                    url,
+                    (response) => {
+
+                        response.pipe(file);
+
+                        file.on(
+                            "finish",
+                            () => {
+
+                                file.close();
+
+                                resolve(
+                                    savePath
+                                );
+
+                            }
+                        );
+
+                    }
+                ).on(
+                    "error",
+                    (err) => {
+
+                        reject(err);
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+ipcMain.handle(
+    "download-portable-update",
+    async (
+        event,
+        downloadUrl
+    ) => {
+
+        return new Promise(
+            (
+                resolve,
+                reject
+            ) => {
+
+                const tempFile =
+                    path.join(
+                        app.getPath("temp"),
+                        "launcher-update.exe"
+                    );
+
+                const file =
+                    fs.createWriteStream(
+                        tempFile
+                    );
+
+                https.get(
+                    downloadUrl,
+                    response => {
+
+                        response.pipe(
+                            file
+                        );
+
+                        file.on(
+                            "finish",
+                            () => {
+
+                                file.close();
+
+                                resolve(
+                                    tempFile
+                                );
+
+                            }
+                        );
+
+                    }
+                ).on(
+                    "error",
+                    err => {
+
+                        reject(
+                            err
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+ipcMain.handle(
+    "get-current-exe",
+    () => {
+
+        return process.execPath;
+
+    }
+);
+
 
 function loadConfig() {
     try {
@@ -313,6 +488,23 @@ ipcMain.on("set-sticker-mode", (event, isSticker) => {
     }
 });
 
+ipcMain.handle(
+    "is-portable",
+    () => {
+
+        return isPortableVersion();
+
+    }
+);
+
+ipcMain.handle(
+    "get-current-exe",
+    () => {
+
+        return process.execPath;
+
+    }
+);
 
 
 ipcMain.handle("get-app-config", () => {
@@ -559,6 +751,52 @@ ipcMain.handle(
         }
 
         return true;
+
+    }
+);
+
+ipcMain.handle(
+    "get-portable-asset",
+    async () => {
+
+        try {
+
+            const apiUrl =
+                "https://api.github.com/repos/chokwangmin/PC-LAUNCHER/releases/latest";
+
+            const response =
+                await fetch(apiUrl);
+
+            const json =
+                await response.json();
+
+            const portable =
+                json.assets.find(
+                    asset =>
+                        asset.name.endsWith(".exe") &&
+                        !asset.name.includes("Setup")
+                );
+
+            return portable
+                ? {
+
+                    name:
+                        portable.name,
+
+                    url:
+                        portable.browser_download_url
+
+                }
+
+                : null;
+
+        } catch (err) {
+
+            console.error(err);
+
+            return null;
+
+        }
 
     }
 );
@@ -923,6 +1161,16 @@ ipcMain.handle(
     "install-update",
     async () => {
 
+        if (
+            isPortableVersion()
+        ) {
+
+            return {
+                portable: true
+            };
+
+        }
+
         isQuitting = true;
 
         if (mainWindow) {
@@ -940,11 +1188,12 @@ ipcMain.handle(
             true
         );
 
-        return true;
+        return {
+            portable: false
+        };
 
     }
 );
-
 
 
 
