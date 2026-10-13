@@ -1686,13 +1686,54 @@
               document.getElementById("updateProgressModal").style.display =
                 "flex";
 
+              const portable = await window.launcherAPI.isPortable();
+
+              if (portable) {
+                const currentExe = await window.launcherAPI.getCurrentExe();
+
+                const asset = await window.launcherAPI.getPortableAsset();
+
+                const downloadedExe =
+                  await window.launcherAPI.downloadPortableFile(asset.url);
+
+                window.portableUpdateInfo = {
+                  currentExe,
+                  downloadedExe,
+                };
+
+                document.getElementById("updateProgressBar").style.width =
+                  "100%";
+
+                document.getElementById("updatePercentText").innerText =
+                  "설치 준비 중...";
+
+                document.getElementById("updateProgressModal").style.display =
+                  "none";
+
+                showActionConfirm(
+                  "🔄",
+
+                  "업데이트 준비 완료",
+
+                  "포터블 업데이트 파일 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
+
+                  async () => {
+                    await window.launcherAPI.runPortableUpdater(
+                      window.portableUpdateInfo.currentExe,
+                      window.portableUpdateInfo.downloadedExe
+                    );
+                  }
+                );
+
+                return;
+              }
+
               await window.launcherAPI.downloadUpdate();
             }
           );
         });
 
         window.launcherAPI?.onUpdateDownloaded(() => {
-          alert("onUpdateDownloaded");
           document.getElementById("updateProgressBar").style.width = "100%";
 
           document.getElementById("updatePercentText").innerText =
@@ -1721,9 +1762,7 @@
                 "업데이트 파일 준비가 완료되었습니다.<br><br>지금 적용하시겠습니까?",
 
                 async () => {
-                  alert("설치 버튼 클릭됨");
                   const result = await window.launcherAPI.installUpdate();
-                  alert(JSON.stringify(result));
                   console.log("[PORTABLE] start");
                   if (result?.portable) {
                     const currentExe = await window.launcherAPI.getCurrentExe();
@@ -1735,10 +1774,16 @@
                       await window.launcherAPI.downloadPortableFile(asset.url);
                     console.log("[PORTABLE] downloaded", downloadedExe);
                     console.log("[PORTABLE] run updater");
-                    await window.launcherAPI.runPortableUpdater(
+                    window.portableUpdateInfo = {
                       currentExe,
-                      downloadedExe
-                    );
+                      downloadedExe,
+                    };
+
+                    document.getElementById("updateProgressBar").style.width =
+                      "100%";
+
+                    document.getElementById("updatePercentText").innerText =
+                      "설치 준비 중...";
 
                     return;
                   }

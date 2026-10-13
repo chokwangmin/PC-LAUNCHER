@@ -63,20 +63,17 @@ let config = {
     isSticker: false,
 };
 
-// function isPortableVersion() {
-
-//     return process.execPath
-//         .toLowerCase()
-//         .includes(
-//             "portable"
-//         );
-
-// }
-
 function isPortableVersion() {
 
-    return true;
+    return process.execPath
+        .toLowerCase()
+        .includes(
+            "portable"
+        );
+
 }
+
+
 
 ipcMain.handle(
     "run-portable-updater",
@@ -99,10 +96,31 @@ ipcMain.handle(
                 "[UPDATER FILE]",
                 updater
             );
-            exec(
+            const updaterExe =
+                path.join(
+                    __dirname,
+                    "updater.exe"
+                );
+            console.log(
+                "[UPDATER EXE]",
+                updaterExe
+            );
 
-                `node "${updater}" "${currentExe}" "${downloadedExe}"`
+            console.log(
+                "[CURRENT EXE]",
+                currentExe
+            );
 
+            console.log(
+                "[DOWNLOADED EXE]",
+                downloadedExe
+            );
+            execFile(
+                updaterExe,
+                [
+                    currentExe,
+                    downloadedExe
+                ]
             );
 
             app.quit();
@@ -185,68 +203,7 @@ ipcMain.handle(
 
 );
 
-ipcMain.handle(
-    "download-portable-update",
-    async (
-        event,
-        downloadUrl
-    ) => {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
-
-                const tempFile =
-                    path.join(
-                        app.getPath("temp"),
-                        "launcher-update.exe"
-                    );
-
-                const file =
-                    fs.createWriteStream(
-                        tempFile
-                    );
-
-                https.get(
-                    downloadUrl,
-                    response => {
-
-                        response.pipe(
-                            file
-                        );
-
-                        file.on(
-                            "finish",
-                            () => {
-
-                                file.close();
-
-                                resolve(
-                                    tempFile
-                                );
-
-                            }
-                        );
-
-                    }
-                ).on(
-                    "error",
-                    err => {
-
-                        reject(
-                            err
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-    }
-);
 
 
 
@@ -1265,21 +1222,23 @@ autoUpdater.on(
 
     }
 );
+
 autoUpdater.on(
     "download-progress",
     (progress) => {
-        if (percent => 99) {
+
+        const percent =
+            Math.round(
+                progress.percent
+            );
+
+        if (percent >= 99) {
 
             console.log(
                 "[PROGRESS 100]"
             );
 
         }
-
-        const percent =
-            Math.round(
-                progress.percent
-            );
 
         if (mainWindow) {
 
