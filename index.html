@@ -1729,6 +1729,7 @@
                     const currentExe = await window.launcherAPI.getCurrentExe();
 
                     const asset = await window.launcherAPI.getPortableAsset();
+
                     console.log("[PORTABLE] asset", asset);
                     const downloadedExe =
                       await window.launcherAPI.downloadPortableFile(asset.url);
