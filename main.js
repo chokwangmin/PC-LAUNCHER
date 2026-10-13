@@ -228,14 +228,7 @@ ipcMain.handle(
     }
 );
 
-ipcMain.handle(
-    "get-current-exe",
-    () => {
 
-        return process.execPath;
-
-    }
-);
 
 
 function loadConfig() {
