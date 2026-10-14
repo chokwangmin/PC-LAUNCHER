@@ -1700,11 +1700,23 @@
                   downloadedExe,
                 };
 
-                document.getElementById("updateProgressBar").style.width =
-                  "100%";
+                document.getElementById("updateProgressModal").style.display =
+                  "none";
 
-                document.getElementById("updatePercentText").innerText =
-                  "설치 준비 중...";
+                showActionConfirm(
+                  "🔄",
+
+                  "업데이트 준비 완료",
+
+                  "포터블 업데이트 파일 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
+
+                  async () => {
+                    await window.launcherAPI.runPortableUpdater(
+                      window.portableUpdateInfo.currentExe,
+                      window.portableUpdateInfo.downloadedExe
+                    );
+                  }
+                );
 
                 return;
               }
@@ -1745,14 +1757,6 @@
                 async () => {
                   const result = await window.launcherAPI.installUpdate();
                   console.log("[PORTABLE] start");
-                  if (result?.portable) {
-                    await window.launcherAPI.runPortableUpdater(
-                      window.portableUpdateInfo.currentExe,
-                      window.portableUpdateInfo.downloadedExe
-                    );
-
-                    return;
-                  }
                 }
               );
             }
