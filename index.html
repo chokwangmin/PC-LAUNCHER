@@ -1687,7 +1687,6 @@
                 "flex";
 
               const portable = await window.launcherAPI.isPortable();
-
               if (portable) {
                 const currentExe = await window.launcherAPI.getCurrentExe();
 
@@ -1706,24 +1705,6 @@
 
                 document.getElementById("updatePercentText").innerText =
                   "설치 준비 중...";
-
-                document.getElementById("updateProgressModal").style.display =
-                  "none";
-
-                showActionConfirm(
-                  "🔄",
-
-                  "업데이트 준비 완료",
-
-                  "포터블 업데이트 파일 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
-
-                  async () => {
-                    await window.launcherAPI.runPortableUpdater(
-                      window.portableUpdateInfo.currentExe,
-                      window.portableUpdateInfo.downloadedExe
-                    );
-                  }
-                );
 
                 return;
               }
@@ -1765,25 +1746,10 @@
                   const result = await window.launcherAPI.installUpdate();
                   console.log("[PORTABLE] start");
                   if (result?.portable) {
-                    const currentExe = await window.launcherAPI.getCurrentExe();
-
-                    const asset = await window.launcherAPI.getPortableAsset();
-
-                    console.log("[PORTABLE] asset", asset);
-                    const downloadedExe =
-                      await window.launcherAPI.downloadPortableFile(asset.url);
-                    console.log("[PORTABLE] downloaded", downloadedExe);
-                    console.log("[PORTABLE] run updater");
-                    window.portableUpdateInfo = {
-                      currentExe,
-                      downloadedExe,
-                    };
-
-                    document.getElementById("updateProgressBar").style.width =
-                      "100%";
-
-                    document.getElementById("updatePercentText").innerText =
-                      "설치 준비 중...";
+                    await window.launcherAPI.runPortableUpdater(
+                      window.portableUpdateInfo.currentExe,
+                      window.portableUpdateInfo.downloadedExe
+                    );
 
                     return;
                   }

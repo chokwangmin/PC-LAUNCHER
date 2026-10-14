@@ -65,10 +65,16 @@ let config = {
 
 function isPortableVersion() {
 
+    console.log(
+        "[EXEC PATH]",
+        process.execPath
+    );
+    alert(process.execPath)
+
     return process.execPath
         .toLowerCase()
         .includes(
-            "portable"
+            "pc-ultimate-launcher-pro-"
         );
 
 }
@@ -87,15 +93,6 @@ ipcMain.handle(
 
         try {
 
-            const updater =
-                path.join(
-                    __dirname,
-                    "updater.js"
-                );
-            console.log(
-                "[UPDATER FILE]",
-                updater
-            );
             const updaterExe =
                 path.join(
                     __dirname,
