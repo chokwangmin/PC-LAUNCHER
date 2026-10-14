@@ -86,20 +86,7 @@ ipcMain.handle(
                     __dirname,
                     "updater.exe"
                 );
-            console.log(
-                "[UPDATER EXE]",
-                updaterExe
-            );
 
-            console.log(
-                "[CURRENT EXE]",
-                currentExe
-            );
-
-            console.log(
-                "[DOWNLOADED EXE]",
-                downloadedExe
-            );
             execFile(
                 updaterExe,
                 [
@@ -111,17 +98,6 @@ ipcMain.handle(
             app.quit();
 
             return true;
-            // execFile(
-            //     updaterExe,
-            //     [
-            //         currentExe,
-            //         downloadedExe
-            //     ]
-            // );
-
-            // app.quit();
-
-            // return true;
 
         } catch (err) {
 
@@ -133,6 +109,7 @@ ipcMain.handle(
 
     }
 );
+
 
 ipcMain.handle(
     "download-portable-file",
