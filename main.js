@@ -64,18 +64,7 @@ let config = {
 };
 
 function isPortableVersion() {
-
-    console.log(
-        "[EXEC PATH]",
-        process.execPath
-    );
-
-    return process.execPath
-        .toLowerCase()
-        .includes(
-            "pc-ultimate-launcher-pro-"
-        );
-
+    return true;
 }
 
 
@@ -111,10 +100,15 @@ ipcMain.handle(
                 "[DOWNLOADED EXE]",
                 downloadedExe
             );
-            showErrorBox(
-                "Portable Debug",
-                `CURRENT\n${currentExe}\n\nDOWNLOADED\n${downloadedExe}\n\nUPDATER\n${updaterExe}`
+            execFile(
+                updaterExe,
+                [
+                    currentExe,
+                    downloadedExe
+                ]
             );
+
+            app.quit();
 
             return true;
             // execFile(

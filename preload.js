@@ -105,16 +105,6 @@ contextBridge.exposeInMainWorld("launcherAPI", {
             "get-current-exe"
         ),
 
-    downloadPortableUpdate:
-        (url) =>
-            ipcRenderer.invoke(
-                "download-portable-update",
-                url
-            ),
-    getPortableUpdateUrl: () =>
-        ipcRenderer.invoke(
-            "get-portable-update-url"
-        ),
 
     getPortableAsset: () =>
         ipcRenderer.invoke(
