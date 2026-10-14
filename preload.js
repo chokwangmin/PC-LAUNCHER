@@ -123,4 +123,16 @@ contextBridge.exposeInMainWorld("launcherAPI", {
             "is-portable"
         ),
 
+    applyPortableUpdate: (
+        currentExe,
+        downloadedExe
+    ) =>
+        ipcRenderer.invoke(
+            "apply-portable-update",
+            {
+                currentExe,
+                downloadedExe
+            }
+        ),
+
 });

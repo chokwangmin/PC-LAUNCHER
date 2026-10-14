@@ -1711,7 +1711,7 @@
                   "포터블 업데이트 파일 준비가 완료되었습니다.<br><br>지금 재시작하시겠습니까?",
 
                   async () => {
-                    await window.launcherAPI.runPortableUpdater(
+                    await window.launcherAPI.applyPortableUpdate(
                       window.portableUpdateInfo.currentExe,
                       window.portableUpdateInfo.downloadedExe
                     );

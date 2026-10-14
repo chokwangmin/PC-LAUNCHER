@@ -68,9 +68,8 @@ function isPortableVersion() {
 }
 
 
-
 ipcMain.handle(
-    "run-portable-updater",
+    "apply-portable-update",
     async (
         event,
         {
@@ -81,18 +80,34 @@ ipcMain.handle(
 
         try {
 
-            const updaterExe =
+            const cmdFile =
                 path.join(
-                    __dirname,
-                    "updater.exe"
+                    app.getPath("temp"),
+                    "launcher-update.cmd"
                 );
 
-            execFile(
-                updaterExe,
-                [
-                    currentExe,
-                    downloadedExe
-                ]
+            const script = `
+
+@echo off
+
+timeout /t 2 >nul
+
+copy /Y "${downloadedExe}" "${currentExe}"
+
+start "" "${currentExe}"
+
+del "%~f0"
+
+`;
+
+            fs.writeFileSync(
+                cmdFile,
+                script,
+                "utf8"
+            );
+
+            exec(
+                `cmd /c start "" "${cmdFile}"`
             );
 
             app.quit();
@@ -109,7 +124,6 @@ ipcMain.handle(
 
     }
 );
-
 
 ipcMain.handle(
     "download-portable-file",
