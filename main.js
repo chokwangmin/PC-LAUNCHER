@@ -69,7 +69,6 @@ function isPortableVersion() {
         "[EXEC PATH]",
         process.execPath
     );
-    alert(process.execPath)
 
     return process.execPath
         .toLowerCase()
@@ -112,17 +111,23 @@ ipcMain.handle(
                 "[DOWNLOADED EXE]",
                 downloadedExe
             );
-            execFile(
-                updaterExe,
-                [
-                    currentExe,
-                    downloadedExe
-                ]
+            showErrorBox(
+                "Portable Debug",
+                `CURRENT\n${currentExe}\n\nDOWNLOADED\n${downloadedExe}\n\nUPDATER\n${updaterExe}`
             );
 
-            app.quit();
-
             return true;
+            // execFile(
+            //     updaterExe,
+            //     [
+            //         currentExe,
+            //         downloadedExe
+            //     ]
+            // );
+
+            // app.quit();
+
+            // return true;
 
         } catch (err) {
 

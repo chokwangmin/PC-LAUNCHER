@@ -128,6 +128,9 @@ contextBridge.exposeInMainWorld("launcherAPI", {
                 url
             ),
 
-
+    isPortable: () =>
+        ipcRenderer.invoke(
+            "is-portable"
+        ),
 
 });
